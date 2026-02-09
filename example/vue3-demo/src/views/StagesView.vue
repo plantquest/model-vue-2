@@ -4,17 +4,12 @@
       <v-col cols="12">
         <v-card>
           <v-card-title>
-            <h2>🚀 Composables Testing - Stage Management</h2>
+            <h2>🗺️ BasicNavStages - Building Navigation Component</h2>
           </v-card-title>
           <v-card-text>
-            <v-alert type="warning" class="mb-4">
-              <strong>Note:</strong> This page tests generic stage management functionality.
-              The actual <strong>BasicNavStages</strong> component is for PlantQuest building navigation
-              (floor plans, routes, multi-level navigation) and requires map integration.
-            </v-alert>
-            <v-alert type="success" class="mb-4">
-              <strong>✅ BasicNavStages Component:</strong> Fully migrated (6.7KB) with NavStagesExpansion and NavStageItem sub-components.
-              Used for building route navigation in PlantQuest's floor plan interface.
+            <v-alert type="info" class="mb-4">
+              <strong>BasicNavStages</strong> is for multi-level building navigation in PlantQuest.
+              It parses route data and displays step-by-step navigation through floors (e.g., "Take stairs to Level 2").
             </v-alert>
           </v-card-text>
         </v-card>
@@ -24,239 +19,133 @@
     <v-row class="mt-4">
       <v-col cols="12" md="6">
         <v-card>
-          <v-card-title>Current Stage State</v-card-title>
+          <v-card-title>Test Navigation Routes</v-card-title>
           <v-card-text>
-            <v-list>
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-icon color="primary">mdi-map-marker</v-icon>
-                </template>
-                <v-list-item-title>Current Stage</v-list-item-title>
-                <v-list-item-subtitle>
-                  Stage {{ currentStage + 1 }} of {{ totalStages }}
-                </v-list-item-subtitle>
-              </v-list-item>
-
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-icon color="success">mdi-check-all</v-icon>
-                </template>
-                <v-list-item-title>Completed Stages</v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ completedStages.length }} stages completed
-                  {{ completedStages.length > 0 ? `(${completedStages.join(', ')})` : '' }}
-                </v-list-item-subtitle>
-              </v-list-item>
-
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-icon color="info">mdi-chart-line</v-icon>
-                </template>
-                <v-list-item-title>Progress</v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ progress }}% complete
-                </v-list-item-subtitle>
-              </v-list-item>
-
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-icon :color="canProgress ? 'success' : 'error'">
-                    {{ canProgress ? 'mdi-check-circle' : 'mdi-close-circle' }}
-                  </v-icon>
-                </template>
-                <v-list-item-title>Can Progress</v-list-item-title>
-                <v-list-item-subtitle>{{ canProgress ? 'Yes ✅' : 'No ❌' }}</v-list-item-subtitle>
-              </v-list-item>
-
-              <v-list-item>
-                <template v-slot:prepend>
-                  <v-icon :color="isComplete ? 'success' : 'warning'">
-                    {{ isComplete ? 'mdi-trophy' : 'mdi-progress-clock' }}
-                  </v-icon>
-                </template>
-                <v-list-item-title>Workflow Complete</v-list-item-title>
-                <v-list-item-subtitle>{{ isComplete ? 'Yes 🎉' : 'In Progress ⏳' }}</v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
-
-            <v-progress-linear
-              :model-value="progress"
-              color="primary"
-              height="10"
-              class="mt-3"
-            ></v-progress-linear>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" md="6">
-        <v-card>
-          <v-card-title>Stage Controls</v-card-title>
-          <v-card-text>
-            <p class="mb-3">Test stage navigation:</p>
+            <p class="mb-3">Select a mock building navigation scenario:</p>
             
             <v-btn
               color="primary"
               block
               class="mb-2"
-              :disabled="!canProgress"
-              @click="handleNextStage"
+              @click="loadSimpleRoute"
             >
-              <v-icon left>mdi-arrow-right</v-icon>
-              Next Stage
+              🏢 Simple: Level 1 → Level 2
+            </v-btn>
+
+            <v-btn
+              color="primary"
+              block
+              class="mb-2"
+              @click="loadComplexRoute"
+            >
+              🏢🏢🏢 Complex: Level 1 → Level 2 → Level 3
             </v-btn>
 
             <v-btn
               color="secondary"
               block
               class="mb-2"
-              :disabled="currentStage === 0"
-              @click="handlePreviousStage"
+              @click="loadMultiStairRoute"
             >
-              <v-icon left>mdi-arrow-left</v-icon>
-              Previous Stage
-            </v-btn>
-
-            <v-btn
-              color="success"
-              block
-              class="mb-2"
-              :disabled="isStageCompleted(currentStage)"
-              @click="handleCompleteStage"
-            >
-              <v-icon left>mdi-check</v-icon>
-              Complete Current Stage
+              🪜🪜 Multi-Stair: Multiple Connectors
             </v-btn>
 
             <v-btn
               color="warning"
               block
-              class="mb-2"
-              @click="handleResetStages"
+              @click="clearRoute"
             >
-              <v-icon left>mdi-refresh</v-icon>
-              Reset All Stages
+              ❌ Clear Route
             </v-btn>
 
             <v-divider class="my-4"></v-divider>
 
-            <h4 class="mb-2">Direct Navigation:</h4>
-            <v-btn-toggle v-model="currentStage" mandatory color="primary" class="d-flex flex-column">
-              <v-btn value="0" size="small" :disabled="!canGoToStage(0)">
-                Stage 1
-              </v-btn>
-              <v-btn value="1" size="small" :disabled="!canGoToStage(1)">
-                Stage 2
-              </v-btn>
-              <v-btn value="2" size="small" :disabled="!canGoToStage(2)">
-                Stage 3
-              </v-btn>
-            </v-btn-toggle>
+            <div>
+              <strong>Current Route:</strong><br>
+              <span class="text-subtitle-2">{{ currentRouteDescription }}</span>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" md="6">
+        <v-card min-height="300">
+          <v-card-title>Navigation Display</v-card-title>
+          <v-card-text>
+            <div v-if="hasRoute">
+              <p class="mb-3"><strong>BasicNavStages Component Output:</strong></p>
+              
+              <!-- Mock map container showing where component overlays -->
+              <div class="mock-map-container" style="position: relative; height: 400px; background: #f5f5f5; border: 2px dashed #ccc; border-radius: 4px;">
+                <div style="padding: 20px; text-align: center;">
+                  <v-icon size="40" color="grey">mdi-map</v-icon>
+                  <p class="text-caption mt-2">Mock Map View</p>
+                  <p class="text-caption">(BasicNavStages overlays here)</p>
+                </div>
+                
+                <!-- The actual BasicNavStages component -->
+                <div style="position: relative; margin-top: 20px;">
+                  <BasicNavStages @stage-selected="handleStageSelected" />
+                </div>
+              </div>
+
+              <v-divider class="my-4"></v-divider>
+
+              <div>
+                <strong>Last Stage Selected:</strong> {{ lastSelectedStage || 'None' }}
+              </div>
+            </div>
+            <div v-else>
+              <v-alert type="info" icon="mdi-information">
+                Select a route above to see BasicNavStages component in action
+              </v-alert>
+              <p class="mt-3 text-caption">
+                The component will parse the route data and display navigation stages like:
+                <br>• "Follow route to stairs and proceed to Level 2"
+                <br>• "Proceed to your destination"
+              </p>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
+    <!-- Technical Details -->
     <v-row class="mt-4">
       <v-col cols="12">
         <v-card color="info" variant="tonal">
-          <v-card-title>About BasicNavStages Component</v-card-title>
-          <v-card-text>
-            <p><strong>The BasicNavStages component is for PlantQuest building navigation:</strong></p>
-            <ul>
-              <li>🗺️ Displays navigation stages for multi-level building routes</li>
-              <li>🏢 Shows route progression through floors (Stage 1 → Stage 2 → etc.)</li>
-              <li>📍 Integrates with map view and pathData from Vuex store</li>
-              <li>🎯 Used in floor plan navigation UI (see images in user query)</li>
-              <li>⚡ Parses complex route data and displays navigation steps</li>
-            </ul>
-            <p class="mt-3"><strong>Files migrated:</strong></p>
-            <v-chip class="ma-1" size="small">BasicNavStages.vue (6.7KB)</v-chip>
-            <v-chip class="ma-1" size="small">NavStagesExpansion.vue</v-chip>
-            <v-chip class="ma-1" size="small">NavStageItem.vue</v-chip>
-            
-            <p class="mt-3"><strong>To test the actual component:</strong> Requires PlantQuest map data, pathData in Vuex store, and map view integration.</p>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <v-row class="mt-4">
-      <v-col cols="12">
-        <v-card>
-          <v-card-title>Generic Stage Management Demo</v-card-title>
+          <v-card-title>How BasicNavStages Works</v-card-title>
           <v-card-text>
             <v-row>
-              <v-col cols="12" md="4">
-                <h4>Exported State:</h4>
-                <v-list density="compact">
-                  <v-list-item prepend-icon="mdi-variable">
-                    <v-list-item-title><code>currentStage</code></v-list-item-title>
-                    <v-list-item-subtitle>Current stage index (ref)</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-variable">
-                    <v-list-item-title><code>completedStages</code></v-list-item-title>
-                    <v-list-item-subtitle>Array of completed stage IDs</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-variable">
-                    <v-list-item-title><code>progress</code></v-list-item-title>
-                    <v-list-item-subtitle>Percentage complete (computed)</v-list-item-subtitle>
-                  </v-list-item>
-                </v-list>
+              <v-col cols="12" md="6">
+                <h4>Data Structure (pathData):</h4>
+                <pre class="text-caption bg-grey-lighten-4 pa-2 rounded mt-2" style="overflow-x: auto;">{{pathDataExample}}</pre>
+                
+                <ul class="mt-3">
+                  <li><code>index</code> - Map/floor level number</li>
+                  <li><code>detail</code> - Format: <code>id,type,,x,y</code></li>
+                  <li><code>type</code> - "Standard" (node) or "Connector" (stairs/elevator)</li>
+                </ul>
               </v-col>
 
-              <v-col cols="12" md="4">
-                <h4>Exported Functions:</h4>
-                <v-list density="compact">
-                  <v-list-item prepend-icon="mdi-function">
-                    <v-list-item-title><code>goToStage()</code></v-list-item-title>
-                    <v-list-item-subtitle>Navigate to specific stage</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-function">
-                    <v-list-item-title><code>nextStage()</code></v-list-item-title>
-                    <v-list-item-subtitle>Move to next stage</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-function">
-                    <v-list-item-title><code>previousStage()</code></v-list-item-title>
-                    <v-list-item-subtitle>Move to previous stage</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-function">
-                    <v-list-item-title><code>completeStage()</code></v-list-item-title>
-                    <v-list-item-subtitle>Mark stage as complete</v-list-item-subtitle>
-                  </v-list-item>
-                </v-list>
-              </v-col>
+              <v-col cols="12" md="6">
+                <h4>Component Features:</h4>
+                <ul>
+                  <li>✅ Parses complex route data</li>
+                  <li>✅ Detects floor changes (Connectors)</li>
+                  <li>✅ Generates navigation messages</li>
+                  <li>✅ Expandable stage panels</li>
+                  <li>✅ Stage selection with map sync</li>
+                  <li>✅ Integrates with Vuex store</li>
+                  <li>✅ Route synchronization</li>
+                </ul>
 
-              <v-col cols="12" md="4">
-                <h4>Computed Props:</h4>
-                <v-list density="compact">
-                  <v-list-item prepend-icon="mdi-calculator">
-                    <v-list-item-title><code>canProgress</code></v-list-item-title>
-                    <v-list-item-subtitle>Can move to next stage</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-calculator">
-                    <v-list-item-title><code>isComplete</code></v-list-item-title>
-                    <v-list-item-subtitle>All stages completed</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item prepend-icon="mdi-calculator">
-                    <v-list-item-title><code>canGoToStage()</code></v-list-item-title>
-                    <v-list-item-subtitle>Check if stage is accessible</v-list-item-subtitle>
-                  </v-list-item>
-                </v-list>
+                <h4 class="mt-4">Files:</h4>
+                <v-chip class="ma-1" size="small">BasicNavStages.vue (6.7KB)</v-chip>
+                <v-chip class="ma-1" size="small">NavStagesExpansion.vue</v-chip>
+                <v-chip class="ma-1" size="small">NavStageItem.vue</v-chip>
               </v-col>
             </v-row>
-
-            <v-divider class="my-4"></v-divider>
-
-            <h4>Integration:</h4>
-            <ul>
-              <li>✅ Vuex 4 store integration</li>
-              <li>✅ Vue Router 4 synchronization</li>
-              <li>✅ TypeScript typed interfaces</li>
-              <li>✅ Reactive state management</li>
-              <li>✅ Stage completion tracking</li>
-              <li>✅ Progress calculation</li>
-            </ul>
           </v-card-text>
         </v-card>
       </v-col>
@@ -267,87 +156,103 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
+import { BasicNavStages } from '@plantquest/model-vue'
 
 const store = useStore()
 
-// Stage state management (simulating useNavStages functionality)
-const currentStage = ref(0)
-const completedStages = ref([])
+// State
+const currentRouteDescription = ref('No route loaded')
+const lastSelectedStage = ref(null)
 
-const stages = ref([
-  { id: 0, label: 'Stage 1', icon: 'mdi-numeric-1' },
-  { id: 1, label: 'Stage 2', icon: 'mdi-numeric-2' },
-  { id: 2, label: 'Stage 3', icon: 'mdi-numeric-3' }
-])
+const hasRoute = computed(() => store.state.pathData !== null)
 
-const totalStages = computed(() => stages.value.length)
+// Mock pathData examples for demo
+const pathDataExample = `{
+  asset123: [[
+    { index: 1, detail: "node1,Standard,1,100,200" },
+    { index: 1, detail: "stairs1,Connector,1,150,250" },
+    { index: 2, detail: "stairs2,Connector,2,150,250" },
+    { index: 2, detail: "dest,Standard,2,200,300" }
+  ]]
+}`
 
-const progress = computed(() => {
-  if (totalStages.value === 0) return 0
-  return Math.round((completedStages.value.length / totalStages.value) * 100)
-})
-
-const canProgress = computed(() => {
-  return currentStage.value < totalStages.value - 1
-})
-
-const isComplete = computed(() => {
-  return completedStages.value.length === totalStages.value
-})
-
-const isStageCompleted = (stageId) => {
-  return completedStages.value.includes(stageId)
-}
-
-const canGoToStage = (stageId) => {
-  // Can always go to any stage in demo
-  return true
-}
-
-const goToStage = (stageId) => {
-  currentStage.value = stageId
-}
-
-const nextStage = () => {
-  if (canProgress.value) {
-    currentStage.value++
+// Load simple route: Level 1 to Level 2
+const loadSimpleRoute = () => {
+  const simpleRoute = {
+    asset123: [[
+      { index: 1, detail: "room_101,Standard,1,50,100" },
+      { index: 1, detail: "corridor,Standard,1,100,100" },
+      { index: 1, detail: "stair_bottom,Connector,1,150,100" },
+      { index: 2, detail: "stair_top,Connector,2,150,150" },
+      { index: 2, detail: "room_201,Standard,2,200,150" }
+    ]]
   }
+  
+  store.state.pathData = simpleRoute
+  currentRouteDescription.value = 'Room 101 (L1) → Stairs → Room 201 (L2)'
+  console.log('✅ Loaded simple route')
 }
 
-const previousStage = () => {
-  if (currentStage.value > 0) {
-    currentStage.value--
+// Load complex route: Level 1 to Level 3
+const loadComplexRoute = () => {
+  const complexRoute = {
+    asset123: [[
+      { index: 1, detail: "entrance,Standard,1,50,100" },
+      { index: 1, detail: "lobby,Standard,1,100,100" },
+      { index: 1, detail: "stair_l1,Connector,1,150,100" },
+      { index: 2, detail: "stair_l2a,Connector,2,150,150" },
+      { index: 2, detail: "hallway,Standard,2,175,150" },
+      { index: 2, detail: "stair_l2b,Connector,2,200,150" },
+      { index: 3, detail: "stair_l3,Connector,3,200,200" },
+      { index: 3, detail: "office_301,Standard,3,250,200" }
+    ]]
   }
+  
+  store.state.pathData = complexRoute
+  currentRouteDescription.value = 'Entrance (L1) → Lobby → Stairs to L2 → Hallway → Stairs to L3 → Office 301'
+  console.log('✅ Loaded complex route')
 }
 
-const completeStage = (stageId) => {
-  if (!completedStages.value.includes(stageId)) {
-    completedStages.value.push(stageId)
+// Load route with multiple consecutive connectors
+const loadMultiStairRoute = () => {
+  const multiStairRoute = {
+    asset123: [[
+      { index: 1, detail: "room_a,Standard,1,50,100" },
+      { index: 1, detail: "connector_1,Connector,1,100,100" },
+      { index: 1, detail: "connector_2,Connector,1,120,100" },
+      { index: 2, detail: "connector_3,Connector,2,120,150" },
+      { index: 2, detail: "connector_4,Connector,2,140,150" },
+      { index: 2, detail: "room_b,Standard,2,200,150" }
+    ]]
   }
+  
+  store.state.pathData = multiStairRoute
+  currentRouteDescription.value = 'Room A (L1) → Multiple Connectors → Room B (L2)'
+  console.log('✅ Loaded multi-stair route')
 }
 
-const resetStages = () => {
-  currentStage.value = 0
-  completedStages.value = []
+// Clear current route
+const clearRoute = () => {
+  store.state.pathData = null
+  currentRouteDescription.value = 'No route loaded'
+  lastSelectedStage.value = null
+  console.log('❌ Route cleared')
 }
 
-const handleNextStage = () => {
-  nextStage()
-  console.log('✅ Moved to next stage:', currentStage.value)
-}
-
-const handlePreviousStage = () => {
-  previousStage()
-  console.log('⬅️ Moved to previous stage:', currentStage.value)
-}
-
-const handleCompleteStage = () => {
-  completeStage(currentStage.value)
-  console.log('✅ Completed stage:', currentStage.value)
-}
-
-const handleResetStages = () => {
-  resetStages()
-  console.log('🔄 Reset all stages')
+// Handle stage selection from BasicNavStages
+const handleStageSelected = (mapValue) => {
+  lastSelectedStage.value = `Map/Level ${mapValue}`
+  console.log('📍 Stage selected:', mapValue)
 }
 </script>
+
+<style scoped>
+.mock-map-container {
+  overflow: visible;
+}
+
+pre {
+  font-size: 11px;
+  line-height: 1.4;
+}
+</style>

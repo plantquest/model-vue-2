@@ -41,11 +41,7 @@ const store = createStore({
         },
         BasicNavStages: {
           currentStage: 0,
-          stages: [
-            { id: 0, label: 'Stage 1', icon: 'mdi-numeric-1', route: 'stage-1' },
-            { id: 1, label: 'Stage 2', icon: 'mdi-numeric-2', route: 'stage-2' },
-            { id: 2, label: 'Stage 3', icon: 'mdi-numeric-3', route: 'stage-3' }
-          ],
+          stages: [],
           completedStages: [],
           history: []
         }
@@ -68,7 +64,20 @@ const store = createStore({
     auth: {
       authenticated: false,
       user: null
-    }
+    },
+    // Mock building navigation data for BasicNavStages
+    pathData: null,
+    currentStage: 0,
+    trigger: {
+      select: {
+        value: null
+      }
+    },
+    main_asset: [
+      { map: 1, custom02: 'Level 1', x: 100, y: 200 },
+      { map: 2, custom02: 'Level 2', x: 150, y: 250 },
+      { map: 3, custom02: 'Level 3', x: 200, y: 300 }
+    ]
   },
   mutations: {
     SET_CMP_FLAGS(state, { name, flags }) {
