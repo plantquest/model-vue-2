@@ -39,5 +39,6 @@ export default {
 // export { useVxgPermissions } from './composables/useVxgPermissions'
 // ... etc
 
-// Types will be exported here after creation (Week 1.3)
-// export * from './types'
+// Types (TypeScript users only)
+// JavaScript users can ignore these exports
+export * from './types'
