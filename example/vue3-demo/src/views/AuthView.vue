@@ -159,10 +159,13 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useStore } from 'vuex'
 import { useAuth } from '@plantquest/model-vue'
 
-// Composable
-const { isAuthenticated, currentUser, login, logout } = useAuth()
+const store = useStore()
+
+// Composable with store
+const { isAuthenticated, currentUser, login, logout } = useAuth(store)
 
 // Local state
 const testEmail = ref('demo@plantquest.com')

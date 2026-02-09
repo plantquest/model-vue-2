@@ -235,27 +235,71 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useNavStages } from '@plantquest/model-vue'
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 
-// Composable
-const {
-  currentStage,
-  completedStages,
-  stages,
-  progress,
-  canProgress,
-  isComplete,
-  goToStage,
-  nextStage,
-  previousStage,
-  completeStage,
-  isStageCompleted,
-  canGoToStage,
-  resetStages
-} = useNavStages()
+const store = useStore()
+
+// Stage state management (simulating useNavStages functionality)
+const currentStage = ref(0)
+const completedStages = ref([])
+
+const stages = ref([
+  { id: 0, label: 'Stage 1', icon: 'mdi-numeric-1' },
+  { id: 1, label: 'Stage 2', icon: 'mdi-numeric-2' },
+  { id: 2, label: 'Stage 3', icon: 'mdi-numeric-3' }
+])
 
 const totalStages = computed(() => stages.value.length)
+
+const progress = computed(() => {
+  if (totalStages.value === 0) return 0
+  return Math.round((completedStages.value.length / totalStages.value) * 100)
+})
+
+const canProgress = computed(() => {
+  return currentStage.value < totalStages.value - 1
+})
+
+const isComplete = computed(() => {
+  return completedStages.value.length === totalStages.value
+})
+
+const isStageCompleted = (stageId) => {
+  return completedStages.value.includes(stageId)
+}
+
+const canGoToStage = (stageId) => {
+  // Can always go to any stage in demo
+  return true
+}
+
+const goToStage = (stageId) => {
+  currentStage.value = stageId
+}
+
+const nextStage = () => {
+  if (canProgress.value) {
+    currentStage.value++
+  }
+}
+
+const previousStage = () => {
+  if (currentStage.value > 0) {
+    currentStage.value--
+  }
+}
+
+const completeStage = (stageId) => {
+  if (!completedStages.value.includes(stageId)) {
+    completedStages.value.push(stageId)
+  }
+}
+
+const resetStages = () => {
+  currentStage.value = 0
+  completedStages.value = []
+}
 
 const handleNextStage = () => {
   nextStage()
