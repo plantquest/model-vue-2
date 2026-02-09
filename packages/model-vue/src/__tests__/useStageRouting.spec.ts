@@ -4,15 +4,21 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ref } from 'vue'
-import { createStore } from 'vuex'
+
+// Mock vuex at module level
+let mockStore: any
+
+vi.mock('vuex', () => ({
+  createStore: vi.fn(),
+  useStore: () => mockStore
+}))
+
 import { useStageRouting } from '@/composables/useStageRouting'
 
 describe('useStageRouting', () => {
-  let store: any
-
   beforeEach(() => {
     // Create a mock Vuex store
-    store = createStore({
+    mockStore = {
       state: {
         currentStage: 1,
         trigger: {
@@ -21,25 +27,18 @@ describe('useStageRouting', () => {
           }
         }
       },
-      mutations: {
-        setCurrentStage(state, stage) {
-          state.currentStage = stage
+      commit: vi.fn((mutation, payload) => {
+        if (mutation === 'setCurrentStage') {
+          mockStore.state.currentStage = payload
         }
-      },
-      actions: {
-        setCurrentStage: vi.fn().mockResolvedValue(true)
-      }
-    })
-
-    // Mock useStore to return our mock store
-    vi.mock('vuex', () => ({
-      useStore: () => store
-    }))
+      }),
+      dispatch: vi.fn().mockResolvedValue(true)
+    }
   })
 
   describe('syncRouteWithStage', () => {
     it('commits stage change to store', async () => {
-      const commitSpy = vi.spyOn(store, 'commit')
+      const commitSpy = vi.spyOn(mockStore, 'commit')
       const { syncRouteWithStage } = useStageRouting()
       
       await syncRouteWithStage(2)
@@ -48,7 +47,7 @@ describe('useStageRouting', () => {
     })
 
     it('dispatches setCurrentStage action', async () => {
-      const dispatchSpy = vi.spyOn(store, 'dispatch')
+      const dispatchSpy = vi.spyOn(mockStore, 'dispatch')
       const { syncRouteWithStage } = useStageRouting()
       
       await syncRouteWithStage(2)
@@ -64,7 +63,7 @@ describe('useStageRouting', () => {
 
     it('handles errors gracefully', async () => {
       const dispatchError = new Error('Dispatch failed')
-      vi.spyOn(store, 'dispatch').mockRejectedValue(dispatchError)
+      vi.spyOn(mockStore, 'dispatch').mockRejectedValue(dispatchError)
       
       const { syncRouteWithStage } = useStageRouting()
       
@@ -72,7 +71,7 @@ describe('useStageRouting', () => {
     })
 
     it('works with stage index 0', async () => {
-      const commitSpy = vi.spyOn(store, 'commit')
+      const commitSpy = vi.spyOn(mockStore, 'commit')
       const { syncRouteWithStage } = useStageRouting()
       
       await syncRouteWithStage(0)
@@ -81,7 +80,7 @@ describe('useStageRouting', () => {
     })
 
     it('works with large stage indices', async () => {
-      const commitSpy = vi.spyOn(store, 'commit')
+      const commitSpy = vi.spyOn(mockStore, 'commit')
       const { syncRouteWithStage } = useStageRouting()
       
       await syncRouteWithStage(99)
@@ -170,7 +169,7 @@ describe('useStageRouting', () => {
     })
 
     it('dispatches setCurrentStage action', async () => {
-      const dispatchSpy = vi.spyOn(store, 'dispatch')
+      const dispatchSpy = vi.spyOn(mockStore, 'dispatch')
       const { handleStageChange } = useStageRouting()
       const setActiveStageMock = vi.fn()
       
@@ -193,7 +192,7 @@ describe('useStageRouting', () => {
 
     it('handles errors in dispatch gracefully', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      vi.spyOn(store, 'dispatch').mockRejectedValue(new Error('Dispatch failed'))
+      vi.spyOn(mockStore, 'dispatch').mockRejectedValue(new Error('Dispatch failed'))
       
       const { handleStageChange } = useStageRouting()
       const setActiveStageMock = vi.fn()
@@ -272,7 +271,7 @@ describe('useStageRouting', () => {
 
   describe('Error Handling', () => {
     it('handles store commit errors gracefully', async () => {
-      vi.spyOn(store, 'commit').mockImplementation(() => {
+      vi.spyOn(mockStore, 'commit').mockImplementation(() => {
         throw new Error('Commit failed')
       })
       

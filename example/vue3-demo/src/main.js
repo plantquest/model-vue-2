@@ -33,7 +33,11 @@ const store = createStore({
         BasicSide: {
           show: false,
           content: null,
-          width: 280
+          width: 280,
+          logo: '<div style="padding: 10px; color: white;">Demo Logo</div>',
+          showSearch2: false,
+          isExpanded: false,
+          items: []
         },
         BasicNavStages: {
           currentStage: 0,
@@ -49,8 +53,17 @@ const store = createStore({
       ent: {
         meta: {
           name: 'Vue 3 Demo'
+        },
+        asset: {
+          list: [
+            { tag: 'Asset 1', custom12: 'Description 1', id: 1 },
+            { tag: 'Asset 2', custom12: 'Description 2', id: 2 },
+            { tag: 'Test Asset', custom12: 'Test Description', id: 3 },
+            { tag: 'Demo Item', custom12: 'Demo Description', id: 4 }
+          ]
         }
-      }
+      },
+      seneca: null
     },
     auth: {
       authenticated: false,
@@ -62,12 +75,39 @@ const store = createStore({
       if (state.vxg.cmp[name]) {
         Object.assign(state.vxg.cmp[name], flags)
       }
+    },
+    SET_AUTH(state, authData) {
+      state.auth = authData
+    },
+    SET_ASSETS(state, assets) {
+      if (!state.vxg.ent.asset) {
+        state.vxg.ent.asset = {}
+      }
+      state.vxg.ent.asset.list = assets
     }
   },
   actions: {
     set_cmp_flags({ commit }, payload) {
       commit('SET_CMP_FLAGS', payload)
     },
+    
+    // Required by BasicHead and BasicSide components
+    vxg_get_assets({ state, commit }, tool) {
+      return new Promise((resolve) => {
+        // Simulate asset loading
+        setTimeout(() => {
+          const assets = state.vxg.ent.asset?.list || []
+          
+          // Call the tool callback if provided (for MiniSearch integration)
+          if (tool && tool.res) {
+            tool.res(null, { assets })
+          }
+          
+          resolve({ assets })
+        }, 100)
+      })
+    },
+    
     'auth/login'({ commit }, credentials) {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -79,6 +119,7 @@ const store = createStore({
         }, 500)
       })
     },
+    
     'auth/logout'({ commit }) {
       return new Promise((resolve) => {
         setTimeout(() => {
