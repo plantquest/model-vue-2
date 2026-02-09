@@ -4,11 +4,17 @@
       <v-col cols="12">
         <v-card>
           <v-card-title>
-            <h2>🚀 Composables Testing - useNavStages</h2>
+            <h2>🚀 Composables Testing - Stage Management</h2>
           </v-card-title>
           <v-card-text>
-            <v-alert type="info" class="mb-4">
-              Testing the <strong>useNavStages</strong> composable for stage navigation management
+            <v-alert type="warning" class="mb-4">
+              <strong>Note:</strong> This page tests generic stage management functionality.
+              The actual <strong>BasicNavStages</strong> component is for PlantQuest building navigation
+              (floor plans, routes, multi-level navigation) and requires map integration.
+            </v-alert>
+            <v-alert type="success" class="mb-4">
+              <strong>✅ BasicNavStages Component:</strong> Fully migrated (6.7KB) with NavStagesExpansion and NavStageItem sub-components.
+              Used for building route navigation in PlantQuest's floor plan interface.
             </v-alert>
           </v-card-text>
         </v-card>
@@ -153,8 +159,32 @@
 
     <v-row class="mt-4">
       <v-col cols="12">
+        <v-card color="info" variant="tonal">
+          <v-card-title>About BasicNavStages Component</v-card-title>
+          <v-card-text>
+            <p><strong>The BasicNavStages component is for PlantQuest building navigation:</strong></p>
+            <ul>
+              <li>🗺️ Displays navigation stages for multi-level building routes</li>
+              <li>🏢 Shows route progression through floors (Stage 1 → Stage 2 → etc.)</li>
+              <li>📍 Integrates with map view and pathData from Vuex store</li>
+              <li>🎯 Used in floor plan navigation UI (see images in user query)</li>
+              <li>⚡ Parses complex route data and displays navigation steps</li>
+            </ul>
+            <p class="mt-3"><strong>Files migrated:</strong></p>
+            <v-chip class="ma-1" size="small">BasicNavStages.vue (6.7KB)</v-chip>
+            <v-chip class="ma-1" size="small">NavStagesExpansion.vue</v-chip>
+            <v-chip class="ma-1" size="small">NavStageItem.vue</v-chip>
+            
+            <p class="mt-3"><strong>To test the actual component:</strong> Requires PlantQuest map data, pathData in Vuex store, and map view integration.</p>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row class="mt-4">
+      <v-col cols="12">
         <v-card>
-          <v-card-title>useNavStages Composable Details</v-card-title>
+          <v-card-title>Generic Stage Management Demo</v-card-title>
           <v-card-text>
             <v-row>
               <v-col cols="12" md="4">
