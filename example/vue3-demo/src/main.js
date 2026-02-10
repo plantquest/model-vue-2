@@ -61,6 +61,14 @@ const store = createStore({
             { tag: 'Test Asset', custom12: 'Test Description', id: 3 },
             { tag: 'Demo Item', custom12: 'Demo Description', id: 4 }
           ]
+        },
+        menu: {
+          items: {
+            home: { title: 'Home', icon: 'home', code: 'home' },
+            components: { title: 'Components', icon: 'view-dashboard', code: 'components' },
+            stages: { title: 'Stages', icon: 'map-marker-path', code: 'stages' }
+          },
+          order: 'home,components,stages'
         }
       },
       seneca: null
