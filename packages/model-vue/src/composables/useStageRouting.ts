@@ -23,9 +23,10 @@ export function useStageRouting() {
   const syncRouteWithStage = (stageIndex: number): Promise<void> => {
     return Promise.resolve()
       .then(() => {
-        // Update current stage in store
-        store.commit('setCurrentStage', stageIndex + 1)
-        return store.dispatch('setCurrentStage', stageIndex)
+        // Update current stage in store (1-based)
+        const oneBasedStage = stageIndex + 1
+        store.commit('setCurrentStage', oneBasedStage)
+        return store.dispatch('setCurrentStage', oneBasedStage)
       })
       .then(() => {
         // Log for debugging
