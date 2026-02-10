@@ -2,6 +2,11 @@
   <div 
     class="stage" 
     :class="{ 'activated': isActive }"
+    :style="{
+      backgroundColor: isActive ? '#C0E28B' : 'white',
+      border: isActive ? '2px solid #8BC34A' : 'none',
+      boxShadow: isActive ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+    }"
     :data-active="isActive"
     :data-index="index"
     @click="handleClick"
