@@ -51,7 +51,7 @@ const {
 // Local State
 // ============================================================================
 
-const isExpanded = ref<number | undefined>(0)
+const isExpanded = ref<number | undefined>(undefined) // undefined = closed, 0 = open
 const showNav = ref(true)
 
 // ============================================================================

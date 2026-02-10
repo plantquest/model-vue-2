@@ -1,8 +1,8 @@
 <template>
   <v-expansion-panels v-model="panelModel" class="mb-12">
-    <v-expansion-panel style="background-color: #DCEEEF">
+    <v-expansion-panel>
       <v-expansion-panel-title 
-        style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;" 
+        style="background-color: #DCEEEF; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;" 
         @click="handleToggleIcon"
       >
         <template v-slot:actions>
@@ -15,7 +15,7 @@
         </h4>
       </v-expansion-panel-title>
       
-      <v-expansion-panel-text style="padding-bottom: 10px;">
+      <v-expansion-panel-text style="padding-bottom: 10px; background-color: #DCEEEF;">
         <NavStageItem
           v-for="(stage, index) in stages"
           :key="stage.id || `stage-${index}`"
