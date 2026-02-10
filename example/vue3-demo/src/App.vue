@@ -2,16 +2,16 @@
   <v-app>
     <!-- Simple header without complex components -->
     <v-app-bar app color="primary" dark>
-      <v-app-bar-nav-icon @click="drawer = !drawer" v-if="$route.name !== 'side'"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer" v-if="!isSideRoute"></v-app-bar-nav-icon>
       <v-app-bar-title>Model-Vue 3 Demo</v-app-bar-title>
       <v-spacer></v-spacer>
-      <v-chip v-if="$route.name === 'side' && isNavigationActive" color="success" size="small">
+      <v-chip v-if="isSideRoute && isNavigationActive" color="success" size="small">
         Navigation Mode Active
       </v-chip>
     </v-app-bar>
 
     <!-- Standard Navigation Drawer (all pages except /side) -->
-    <v-navigation-drawer v-model="drawer" app v-if="$route.name !== 'side'">
+    <v-navigation-drawer v-if="!isSideRoute" v-model="drawer" app>
       <v-list>
         <v-list-item
           v-for="item in navItems"
@@ -29,7 +29,8 @@
 
     <!-- BasicSide Component (only on /side route) -->
     <BasicSide 
-      v-if="$route.name === 'side'"
+      v-if="isSideRoute"
+      :key="route.path"
       :spec="basicSideSpec"
       :logo="basicSideLogo"
     />
@@ -50,11 +51,17 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { BasicSide } from '@plantquest/model-vue'
 
+const route = useRoute()
 const store = useStore()
 const drawer = ref(true)
+
+// Computed property to check if we're on the side route
+const isSideRoute = computed(() => route.name === 'side')
+
 const basicSideLogo = '<div style="padding: 10px; color: white; background: #27324A; font-weight: bold;">🏢 PlantQuest</div>'
 const basicSideSpec = {
   footer: {
