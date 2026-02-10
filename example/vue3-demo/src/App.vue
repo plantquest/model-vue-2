@@ -29,6 +29,7 @@
     <!-- BasicSide Component (only on /side route) -->
     <BasicSide 
       v-if="$route.name === 'side' && showBasicSide"
+      :spec="basicSideSpec"
       :logo="basicSideLogo"
     />
 
@@ -53,6 +54,12 @@ import { BasicSide } from '@plantquest/model-vue'
 const drawer = ref(true)
 const showBasicSide = ref(true)
 const basicSideLogo = '<div style="padding: 10px; color: white; background: #27324A; font-weight: bold;">🏢 PlantQuest</div>'
+const basicSideSpec = {
+  footer: {
+    active: false
+  },
+  view: {}
+}
 
 const navItems = ref([
   { code: 'home', label: 'Home', icon: 'mdi-home', route: '/' },
