@@ -174,19 +174,30 @@ const store = useStore()
 // State
 const isNavigationMode = computed(() => store.state.showSearch2 || false)
 
+// Helper function to format asset tags (matching old component behavior)
+const tagAlias = (asset) => {
+  if (!asset || !asset.tag) {
+    return null
+  }
+  if (asset.custom12 != null) {
+    return `${asset.tag}(${asset.custom12})`
+  }
+  return asset.tag
+}
+
 // Sample assets for search
 const sampleAssets = ref([
-  { tag: 'ERT ROOM U01.22', id: 1, custom12: 'Emergency Room Level 1', level: 1 },
-  { tag: 'P1L5M02', id: 2, custom12: 'Office Level 5', level: 5 },
-  { tag: 'CONFERENCE ROOM A', id: 3, custom12: 'Meeting Room Level 2', level: 2 },
-  { tag: 'LAB 101', id: 4, custom12: 'Research Lab Level 1', level: 1 },
-  { tag: 'STORAGE B3', id: 5, custom12: 'Storage Room Level 3', level: 3 },
-  { tag: 'CAFETERIA', id: 6, custom12: 'Dining Area Level 1', level: 1 },
-  { tag: 'IT ROOM 205', id: 7, custom12: 'IT Equipment Room', level: 2 },
-  { tag: 'STAIR A', id: 8, custom12: 'Stairwell A', level: 1, type: 'Connector' },
-  { tag: 'STAIR B', id: 9, custom12: 'Stairwell B', level: 2, type: 'Connector' },
-  { tag: 'ELEVATOR 1', id: 10, custom12: 'Main Elevator', level: 1, type: 'Connector' },
-  { tag: 'RECEPTION', id: 11, custom12: 'Main Reception Desk', level: 1 },
+  { tag: 'FR833 W01.124', id: 1, custom12: '', level: 1 },
+  { tag: '28C COLD STORAGE W01.42', id: 2, level: 1 },
+  { tag: 'PQ-TEST-CH', id: 3, level: 1 },
+  { tag: 'P2L7M01', id: 4, level: 7 },
+  { tag: 'C001-26003-P026004-V-076', id: 5, custom12: 'SE020PJ0303ADEEH59', level: 2 },
+  { tag: 'P02GDP01/P1A9GD8', id: 6, level: 2 },
+  { tag: 'P1L5M02', id: 7, level: 5 },
+  { tag: 'P1L7W11.P02-01E01-S-007', id: 8, custom12: 'SE020PK3007AHBDL1A', level: 7 },
+  { tag: 'F115 A1', id: 9, level: 1 },
+  { tag: 'ERT ROOM U01.22', id: 10, level: 1 },
+  { tag: 'CONFERENCE ROOM A', id: 11, level: 2 },
   { tag: 'BREAKROOM 3A', id: 12, custom12: 'Employee Break Room', level: 3 },
   { tag: 'BOARDROOM', id: 13, custom12: 'Executive Boardroom Level 4', level: 4 },
   { tag: 'PRINTER ROOM 2B', id: 14, custom12: 'Copy Room Level 2', level: 2 },
@@ -202,8 +213,14 @@ const toggleNavigationMode = () => {
 
 // Populate assets
 const populateSampleAssets = () => {
-  store.state.vxg.ent.asset.list = [...sampleAssets.value]
+  // Format assets with tag_alias before storing
+  const formattedAssets = sampleAssets.value.map(asset => ({
+    ...asset,
+    displayTag: tagAlias(asset)  // Add formatted display tag
+  }))
+  store.state.vxg.ent.asset.list = formattedAssets
   console.log('📦 Loaded', sampleAssets.value.length, 'sample assets')
+  console.log('Sample formatted tags:', formattedAssets.slice(0, 3).map(a => a.displayTag))
 }
 
 // Clear all

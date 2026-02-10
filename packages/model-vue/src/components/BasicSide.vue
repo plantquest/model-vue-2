@@ -702,7 +702,7 @@ onMounted(() => {
     if (assets.length != 0) {
       tagItems.value = assets
         .filter((v: any) => v && v.tag)
-        .map(tag_alias)
+        .map(tagAlias)
         .filter((item: any) => item !== null)
       
       if (items2.value.length > 0 && items2.value[0].email) {
@@ -713,11 +713,12 @@ onMounted(() => {
       } else {
         tagItems2.value = items2.value
           .filter((v: any) => v && v.tag)
-          .map(tag_alias)
+          .map(tagAlias)
           .filter((item: any) => item !== null)
       }
       
       clearInterval(intervalId)
+      console.log('✅ Assets loaded and formatted:', tagItems.value.slice(0, 5))
     }
   }, 111)
 
