@@ -2,7 +2,6 @@
   <div 
     class="stage" 
     :class="{ 'activated': isActive }"
-    style="background-color: white;"
     @click="emit('select')"
   >
     <h3 style="font-size: 13px;">STAGE {{ index + 1 }}</h3>
@@ -34,6 +33,7 @@ const emit = defineEmits<{
   cursor: pointer;
   transition: all 0.2s ease;
   border: 2px solid transparent;
+  background-color: white;
 
   &:hover {
     opacity: 0.9;
