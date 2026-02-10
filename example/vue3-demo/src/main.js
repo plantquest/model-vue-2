@@ -31,13 +31,17 @@ const store = createStore({
           searchableItems: []
         },
         BasicSide: {
-          show: false,
+          show: true,  // Show the drawer
           content: null,
           width: 280,
-          logo: '<div style="padding: 10px; color: white;">Demo Logo</div>',
-          showSearch2: false,
+          logo: '<div style="padding: 10px; color: white; background: #27324A;">PlantQuest Demo</div>',
+          showSearch2: false,  // False = Search mode, True = Navigation mode
           isExpanded: false,
-          items: []
+          items: [],
+          search: '',  // Primary search value
+          search2: '',  // Secondary search (destination) in navigation mode
+          filterIcon: true,  // Show filter icon
+          prependIcon: 'mdi-magnify'  // Search icon
         },
         BasicNavStages: {
           currentStage: 0,
