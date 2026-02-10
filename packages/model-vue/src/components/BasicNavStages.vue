@@ -166,7 +166,8 @@ watch(
 watch(
   () => store.state.currentStage,
   (newVal) => {
-    if (newVal !== undefined) {
+    // Only process valid stage values (1-based, so must be > 0)
+    if (newVal !== undefined && newVal > 0) {
       handleStageChange(newVal, (index: number) => {
         activeStage.value = index
       })
