@@ -22,7 +22,7 @@
           :stage="stage"
           :index="index"
           :is-active="activeStage === index"
-          @select="emit('stage-select', index)"
+          @select="handleStageSelect(index)"
         />
       </v-expansion-panel-text>
     </v-expansion-panel>
@@ -63,9 +63,19 @@ const handleToggleIcon = () => {
   emit('toggle-icon')
 }
 
+const handleStageSelect = (index: number) => {
+  console.log(`📍 NavStagesExpansion: Stage ${index} selected, activeStage=${props.activeStage}`)
+  emit('stage-select', index)
+}
+
 // Watch for expansion changes
 watch(() => props.expanded, (newVal) => {
   // Expansion state changed
+})
+
+// Watch activeStage changes
+watch(() => props.activeStage, (newVal) => {
+  console.log(`🎨 NavStagesExpansion: activeStage changed to ${newVal}`)
 })
 </script>
 

@@ -2,7 +2,7 @@
   <div 
     class="stage" 
     :class="{ 'activated': isActive }"
-    @click="emit('select')"
+    @click="handleClick"
   >
     <h3 style="font-size: 13px;">STAGE {{ index + 1 }}</h3>
     <p>{{ stage.msg }}</p>
@@ -23,6 +23,11 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   select: []
 }>()
+
+const handleClick = () => {
+  console.log(`🎯 Stage ${props.index + 1} clicked, isActive=${props.isActive}`)
+  emit('select')
+}
 </script>
 
 <style lang="scss" scoped>
