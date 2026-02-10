@@ -2,11 +2,11 @@
   <v-navigation-drawer 
     v-model="open"
     app 
+    location="left"
     class="vxg-side" 
-    :style="drawerStyle" 
+    :width="280"
     permanent 
     :touchless="true" 
-    :clipped="false"
     :temporary="false"
   >
     <v-sheet class="d-flex flex-column h-100">
