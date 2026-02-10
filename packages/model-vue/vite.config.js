@@ -1,10 +1,25 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vuetify from 'vite-plugin-vuetify'
 import { resolve } from 'path'
 import { fileURLToPath, URL } from 'node:url'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    vuetify({ 
+      autoImport: true,
+      styles: { configFile: 'src/styles/settings.scss' }
+    }),
+    visualizer({
+      open: false,
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+      template: 'treemap'
+    })
+  ],
   build: {
     lib: {
       // Entry point for the library
@@ -23,7 +38,8 @@ export default defineConfig({
         'vuetify',
         'vue-router',
         'vuex',
-        'pinia'
+        'pinia',
+        /^vuetify\//
       ],
       output: {
         // Global variable names for UMD build
@@ -34,7 +50,7 @@ export default defineConfig({
           vuex: 'Vuex',
           pinia: 'Pinia'
         },
-        // Use named exports
+        // Use named exports for better tree-shaking
         exports: 'named',
         // CSS file name
         assetFileNames: (assetInfo) => {
@@ -42,7 +58,15 @@ export default defineConfig({
             return 'vxg.css'
           }
           return assetInfo.name
-        }
+        },
+        // Manual chunks for better code splitting
+        manualChunks: undefined
+      },
+      // Tree-shaking optimization
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false
       }
     },
     // Don't split CSS into separate files

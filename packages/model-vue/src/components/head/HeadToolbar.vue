@@ -18,31 +18,29 @@
     <!-- Add button -->
     <template v-if="showAdd">
       <v-btn
-        tile
         class="vxg-head-btn"
         @click="handleAdd"
       >
-        <v-icon left medium>
+        <v-icon start>
           mdi-map-marker-path
         </v-icon>
         Add {{ addButtonText }}
       </v-btn>
-      <v-divider vertical style="margin:0px 16px;"></v-divider>
+      <v-divider vertical class="mx-4"></v-divider>
     </template>
 
     <!-- Remove button -->
     <template v-if="showRemove">
       <v-btn
-        tile
         class="vxg-head-btn"
         @click="handleRemove"
       >
-        <v-icon left medium>
+        <v-icon start>
           mdi-map-marker-path
         </v-icon>
         Remove {{ itemName }}
       </v-btn>
-      <v-divider vertical style="margin:0px 16px;"></v-divider>
+      <v-divider vertical class="mx-4"></v-divider>
     </template>
   </div>
 </template>
