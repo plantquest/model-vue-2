@@ -87,26 +87,32 @@
         <v-card min-height="600">
           <v-card-title>BasicSide Component Preview</v-card-title>
           <v-card-text>
-            <v-alert type="warning" class="mb-4">
-              <strong>Note:</strong> BasicSide uses v-navigation-drawer which needs to be at app root level.
-              It cannot be rendered inside a card. Click the hamburger menu (☰) in the top-left to see it.
+            <v-alert type="success" class="mb-4">
+              <strong>✅ BasicSide is Active!</strong> The component is rendered on the LEFT side of your screen.
+              It replaces the standard navigation drawer when you're on this page.
             </v-alert>
             
-            <p class="mb-2">
-              <strong>To test BasicSide:</strong>
-            </p>
-            <ol>
-              <li>Click the hamburger menu (☰) in the app bar above</li>
-              <li>The side drawer will open showing the search box</li>
-              <li>Click "Load Sample Assets" button first</li>
-              <li>Type in the search box to find assets</li>
-              <li>Click the Layer 5 icon (📍) to toggle Navigation Mode</li>
-            </ol>
-            
-            <p class="text-caption mt-4">
-              The BasicSide component is rendered at the app level, not inline in this view.
-              This matches how it works in PlantQuest where it's always available as a side navigation drawer.
-            </p>
+            <v-alert type="info" class="mb-4">
+              <strong>How to Test:</strong>
+              <ol class="mt-2">
+                <li><strong>Search Mode</strong> (default):
+                  <ul>
+                    <li>Look at the LEFT side drawer (dark blue/black)</li>
+                    <li>You'll see a search box at the top</li>
+                    <li>Click "Load Sample Assets" below to populate search</li>
+                    <li>Type in the search box (e.g., "ERT ROOM")</li>
+                  </ul>
+                </li>
+                <li class="mt-2"><strong>Navigation Mode</strong> (start → destination):
+                  <ul>
+                    <li>Click the Layer 5 icon (📍) in the drawer</li>
+                    <li>OR click "Switch to Navigation Mode" button below</li>
+                    <li>Two search boxes will appear (Start and Destination)</li>
+                    <li>Type locations like "ERT ROOM U01.22" and "P1L5M02"</li>
+                  </ul>
+                </li>
+              </ol>
+            </v-alert>
           </v-card-text>
         </v-card>
       </v-col>
