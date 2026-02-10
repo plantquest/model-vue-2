@@ -3,7 +3,7 @@
  * Extends Vue's global types to include Vxg plugin
  */
 
-import { VxgPlugin } from './vxg'
+import { VxgInstance } from './vxg'
 
 /**
  * Augment Vue instance with $vxg
@@ -11,10 +11,15 @@ import { VxgPlugin } from './vxg'
 declare module 'vue' {
   interface ComponentCustomProperties {
     /**
-     * Vxg plugin instance
+     * Vxg instance
      * Available as this.$vxg in Options API
      */
-    $vxg: VxgPlugin
+    $vxg: VxgInstance
+    
+    /**
+     * Vxg version string
+     */
+    $vxgVersion: string
   }
 }
 
