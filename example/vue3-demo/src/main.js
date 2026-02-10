@@ -113,6 +113,21 @@ const store = createStore({
     setCurrentStage(state, stageIndex) {
       state.currentStage = stageIndex
       console.log('✅ Current stage set to:', stageIndex)
+    },
+    // Required by BasicSide for navigation mode toggle
+    toggleSearch2(state) {
+      state.showSearch2 = !state.showSearch2
+      state.vxg.cmp.BasicSide.showSearch2 = state.showSearch2
+      console.log('🗺️ Navigation mode toggled:', state.showSearch2 ? 'ON' : 'OFF')
+    },
+    // Required by BasicSide clearFilter
+    clear_path_data(state) {
+      state.pathData = null
+      console.log('✅ Path data cleared')
+    },
+    clearMatchingConnectorData(state) {
+      // In real PlantQuest, this clears connector highlight data
+      console.log('✅ Connector data cleared')
     }
   },
   actions: {
@@ -153,6 +168,22 @@ const store = createStore({
           
           resolve({ assets })
         }, 100)
+      })
+    },
+    
+    // Required by BasicSide clearFilter
+    vxg_trigger_clear({ commit }) {
+      return Promise.resolve()
+    },
+    
+    setLastTrackedSearch({ state }, searchData) {
+      return Promise.resolve()
+    },
+    
+    clear_path_data({ commit }) {
+      return new Promise((resolve) => {
+        commit('clear_path_data')
+        resolve()
       })
     },
     
