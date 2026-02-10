@@ -1,36 +1,21 @@
 <template>
   <v-expansion-panels v-model="panelModel" class="mb-12">
     <v-expansion-panel style="background-color: #DCEEEF">
-      <v-expansion-panel-header 
+      <v-expansion-panel-title 
         style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;" 
         @click="handleToggleIcon"
       >
         <template v-slot:actions>
-          <img 
-            v-if="panelModel !== undefined"
-            :src="`${publicPath}${iconSrc}`" 
-            :alt="iconAlt" 
-            style="margin-left: 45px;" 
-          />
-          <img 
-            v-else
-            :src="`${publicPath}${iconSrc}`" 
-            :alt="iconAlt" 
-            style="margin-left: 45px;" 
-          />
+          <v-icon v-if="panelModel !== undefined">mdi-chevron-up</v-icon>
+          <v-icon v-else>mdi-chevron-down</v-icon>
         </template>
-        <img 
-          :src="`${publicPath}Layers.svg`" 
-          alt="Layers" 
-          class="Layers" 
-          style="margin-left: -16px; width: 30px;" 
-        />
+        <v-icon class="mr-2">mdi-layers</v-icon>
         <h4 style="width: 300px; font-size: 14px; padding-left: 2px;">
           THIS ROUTE CONTAINS MULTIPLE LEVELS
         </h4>
-      </v-expansion-panel-header>
+      </v-expansion-panel-title>
       
-      <v-expansion-panel-content style="padding-bottom: 10px;">
+      <v-expansion-panel-text style="padding-bottom: 10px;">
         <NavStageItem
           v-for="(stage, index) in stages"
           :key="stage.id || `stage-${index}`"
@@ -39,7 +24,7 @@
           :is-active="activeStage === index"
           @select="emit('stage-select', index)"
         />
-      </v-expansion-panel-content>
+      </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
 </template>
