@@ -140,15 +140,15 @@
       <div class="Menu Items" style="margin-top:15px;height: calc(100vh - 332px);">
         <template v-if="menuView.mode === 'standard'">
           <div class="router_items">
-            <router-link 
-              v-for="item in menu"
-              v-if="item && allow(item) && item.code !== 'admin' && item.title !== 'Devices' && item.code !== 'devices'"
-              :key="item.code" 
-              :to="`/${item.code}`" 
-              :class="['vxg-router-link', item.klass]"
-            >
-              <v-icon v-once>mdi-{{ item.icon }}</v-icon> {{ item.title }}
-            </router-link>
+            <template v-for="item in menu" :key="item.code">
+              <router-link 
+                v-if="item && allow(item) && item.code !== 'admin' && item.title !== 'Devices' && item.code !== 'devices'"
+                :to="`/${item.code}`" 
+                :class="['vxg-router-link', item.klass]"
+              >
+                <v-icon v-once>mdi-{{ item.icon }}</v-icon> {{ item.title }}
+              </router-link>
+            </template>
           </div>
         </template>
 
