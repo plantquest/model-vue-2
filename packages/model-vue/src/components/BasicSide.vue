@@ -142,7 +142,7 @@
           <div class="router_items">
             <router-link 
               v-for="item in menu"
-              v-if="allow(item) && item.code !== 'admin' && item.title !== 'Devices' && item.code !== 'devices'"
+              v-if="item && allow(item) && item.code !== 'admin' && item.title !== 'Devices' && item.code !== 'devices'"
               :key="item.code" 
               :to="`/${item.code}`" 
               :class="['vxg-router-link', item.klass]"
@@ -259,12 +259,20 @@ const prependIcon = computed(() => {
 const menu = computed(() => {
   if (menuView.value.mode !== 'standard') return []
 
-  const { items, order } = menuView.value.menu
-  return order.split(/\s*,\s*/).map((code: string) => ({
-    ...items[code],
-    code,
-    klass: { 'vxg-router-link': true }
-  }))
+  const { items = {}, order = '' } = menuView.value.menu || {}
+  
+  // Return empty array if no order defined
+  if (!order) return []
+  
+  // Split order and filter out undefined items
+  return order
+    .split(/\s*,\s*/)
+    .filter((code: string) => code && items[code]) // Only include valid items
+    .map((code: string) => ({
+      ...items[code],
+      code,
+      klass: { 'vxg-router-link': true }
+    }))
 })
 
 const filterIcon = computed(() => store.state.vxg?.cmp?.BasicHead?.show?.filter || false)
