@@ -26,8 +26,8 @@
         {{ showSearch2 ? 'Close Navigation Mode' : 'Clear Search' }}
       </v-btn>
 
-      <!-- Search and Navigation for pqview route -->
-      <div v-if="currentRoute === 'pqview'">
+      <!-- Search and Navigation for pqview and side routes -->
+      <div v-if="currentRoute === 'pqview' || currentRoute === 'side'">
         <!-- Layer 5 Icon -->
         <div v-show="!showSearch2">
           <img 
