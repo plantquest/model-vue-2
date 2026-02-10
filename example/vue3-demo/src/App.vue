@@ -27,7 +27,10 @@
     </v-navigation-drawer>
 
     <!-- BasicSide Component (only on /side route) -->
-    <BasicSide v-if="$route.name === 'side' && showBasicSide" />
+    <BasicSide 
+      v-if="$route.name === 'side' && showBasicSide"
+      :logo="basicSideLogo"
+    />
 
     <v-main>
       <v-container fluid>
@@ -49,6 +52,7 @@ import { BasicSide } from '@plantquest/model-vue'
 
 const drawer = ref(true)
 const showBasicSide = ref(true)
+const basicSideLogo = '<div style="padding: 10px; color: white; background: #27324A; font-weight: bold;">🏢 PlantQuest</div>'
 
 const navItems = ref([
   { code: 'home', label: 'Home', icon: 'mdi-home', route: '/' },
