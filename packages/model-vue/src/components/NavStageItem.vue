@@ -2,9 +2,14 @@
   <div 
     class="stage" 
     :class="{ 'activated': isActive }"
+    :data-active="isActive"
+    :data-index="index"
     @click="handleClick"
   >
-    <h3 style="font-size: 13px;">STAGE {{ index + 1 }}</h3>
+    <h3 style="font-size: 13px;">
+      STAGE {{ index + 1 }}
+      <span v-if="isActive" style="color: #4CAF50; font-weight: bold;"> ✓</span>
+    </h3>
     <p>{{ stage.msg }}</p>
   </div>
 </template>
@@ -25,8 +30,12 @@ const emit = defineEmits<{
 }>()
 
 const handleClick = () => {
-  console.log(`🎯 Stage ${props.index + 1} clicked, isActive=${props.isActive}`)
+  console.log(`🎯 Stage ${props.index + 1} clicked, isActive=${props.isActive}, will become active`)
   emit('select')
+  // Log again after a short delay to see if prop updated
+  setTimeout(() => {
+    console.log(`✨ Stage ${props.index + 1} after click: isActive=${props.isActive}`)
+  }, 200)
 }
 </script>
 
@@ -37,7 +46,7 @@ const handleClick = () => {
   margin: 0px 4px 0px 7px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  background-color: white;
+  background-color: white !important;
 
   &:hover:not(.activated) {
     opacity: 0.9;
@@ -66,5 +75,6 @@ const handleClick = () => {
 
 .stage.activated {
   background-color: #C0E28B !important;
+  opacity: 1 !important;
 }
 </style>
