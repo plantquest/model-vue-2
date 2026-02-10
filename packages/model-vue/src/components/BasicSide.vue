@@ -1,12 +1,12 @@
 <template>
   <v-navigation-drawer 
+    v-model="open"
     app 
     class="vxg-side" 
     :style="drawerStyle" 
     permanent 
     :touchless="true" 
     :clipped="false"
-    :mini-variant="false" 
     :temporary="false"
   >
     <v-sheet class="d-flex flex-column h-100">
