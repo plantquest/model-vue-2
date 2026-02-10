@@ -11,7 +11,7 @@
   >
     <v-sheet class="d-flex flex-column h-100">
       <!-- Header -->
-      <div class="d-flex justify-space-between" style="background:#27324A">
+      <div class="d-flex justify-space-between" style="background: var(--vxg-header-bg, #1976d2); padding: 12px;">
         <div v-html="logo"></div>
       </div>
 
@@ -19,7 +19,7 @@
       <v-btn 
         v-if="show('clear') && tool.clear.active" 
         text
-        style="max-width:200px;display:inline-block;margin-left:48%;text-transform: none;font-size:12px; color: #fff;top:10px"
+        style="max-width:200px;display:inline-block;margin-left:48%;text-transform: none;font-size:12px; color: var(--vxg-text-color, #333);top:10px"
         class="btn-clear" 
         @click="clearFilter"
       >
@@ -343,6 +343,37 @@ const handleBlur = () => {
   showIcon.value = true
 }
 
+// Helper: Handle router navigation errors
+const handleRouterError = (err: any) => {
+  if (err.name !== 'NavigationDuplicated') {
+    console.error('Router navigation error:', err)
+  }
+}
+
+// Helper: Execute search API call and update results
+const executeSearch = async (term: string | null, targetItems: any, sourceItems: any) => {
+  if (term) {
+    const seneca = (window as any).$seneca
+    if (seneca) {
+      const out = await seneca.post('sys:search, cmd:search',
+        { query: term, params: searchConfig.value }
+      )
+      targetItems.value = out.data.hits
+        .filter((v: any) => v && v.doc)
+        .map((v: any) => tag_alias(v.doc))
+        .filter((item: any) => item !== null)
+    }
+  } else {
+    // Reset to full list when search is empty
+    if (sourceItems.value != undefined) {
+      targetItems.value = sourceItems.value
+        .filter((v: any) => v && v.tag)
+        .map(tag_alias)
+        .filter((item: any) => item !== null)
+    }
+  }
+}
+
 const handleChangeSearch = (event: any) => {
   if (!showSearch2State.value) {
     router.push({
@@ -351,7 +382,7 @@ const handleChangeSearch = (event: any) => {
         mode: 'assetsearch',
         term: event,
       }
-    })
+    }).catch(handleRouterError)
   } else {
     router.replace({
       path: route.path,
@@ -360,15 +391,12 @@ const handleChangeSearch = (event: any) => {
         a: search.value,
         b: search2.value
       }
-    }).catch(err => {
-      if (err.name !== 'NavigationDuplicated') {
-        console.error('Router navigation error:', err)
-      }
-    })
+    }).catch(handleRouterError)
   }
 }
 
 const changeSearch = async (event: any) => {
+  // Handle Enter key for asset search
   if (event.key === 'Enter' && route.query.mode === 'assetsearch') {
     const term = event.target?.value?.trim()
     if (term) {
@@ -378,59 +406,53 @@ const changeSearch = async (event: any) => {
   }
 
   setTimeout(async () => {
-    let term = event.target ? event.target.value : null
-    router.push({
-      path: route.path,
-      query: {
-        mode: 'assetsearch',
-        term: event.target?.value,
-      }
-    })
+    const term = event.target ? event.target.value : null
     
-    if (term) {
-      const seneca = (window as any).$seneca
-      if (seneca) {
-        const out = await seneca.post('sys:search, cmd:search',
-          { query: term, params: searchConfig.value }
-        )
-        tagItems.value = out.data.hits
-          .filter((v: any) => v && v.doc)
-          .map((v: any) => tag_alias(v.doc))
-          .filter((item: any) => item !== null)
-      }
+    // Update URL based on current mode
+    if (showSearch2State.value) {
+      // Navigation mode: preserve both A and B fields
+      router.replace({
+        path: route.path,
+        query: {
+          mode: 'route',
+          a: term,
+          b: search2.value
+        }
+      }).catch(handleRouterError)
     } else {
-      if (items.value != undefined) {
-        tagItems.value = items.value
-          .filter((v: any) => v && v.tag)
-          .map(tag_alias)
-          .filter((item: any) => item !== null)
-      }
+      // Search mode: update term only
+      router.push({
+        path: route.path,
+        query: {
+          mode: 'assetsearch',
+          term: term,
+        }
+      }).catch(handleRouterError)
     }
+    
+    // Execute search and update results
+    await executeSearch(term, tagItems, items)
   }, 11)
 }
 
 const changeSearch2 = async (event: any) => {
   setTimeout(async () => {
-    let term = event.target ? event.target.value : null
-    if (term) {
-      const seneca = (window as any).$seneca
-      if (seneca) {
-        const out = await seneca.post('sys:search, cmd:search',
-          { query: term, params: searchConfig.value }
-        )
-        tagItems2.value = out.data.hits
-          .filter((v: any) => v && v.doc)
-          .map((v: any) => tag_alias(v.doc))
-          .filter((item: any) => item !== null)
-      }
-    } else {
-      if (items2.value != undefined) {
-        tagItems2.value = items2.value
-          .filter((v: any) => v && v.tag)
-          .map(tag_alias)
-          .filter((item: any) => item !== null)
-      }
+    const term = event.target ? event.target.value : null
+    
+    // Update URL for navigation mode (FIX: was missing)
+    if (showSearch2State.value) {
+      router.replace({
+        path: route.path,
+        query: {
+          mode: 'route',
+          a: search.value,
+          b: term
+        }
+      }).catch(handleRouterError)
     }
+    
+    // Execute search and update results
+    await executeSearch(term, tagItems2, items2)
   }, 11)
 }
 
@@ -658,14 +680,15 @@ watch(() => route.name, (val) => {
 
 watch(() => route.query, (query) => {
   if (query.mode == 'route') {
-    search.value = (query.a as string) || ''
-    search2.value = (query.b as string) || ''
-    store.state.trigger.search.a = search.value
-    store.state.trigger.search.b = search2.value
-    nextTick(() => {
+    // Only update values if they exist in the query (preserve existing values)
+    if (query.a !== undefined) {
       search.value = (query.a as string) || ''
+      store.state.trigger.search.a = search.value
+    }
+    if (query.b !== undefined) {
       search2.value = (query.b as string) || ''
-    })
+      store.state.trigger.search.b = search2.value
+    }
   }
 }, { immediate: true })
 
@@ -751,7 +774,7 @@ const DRAWER_STYLE = Object.freeze({
 <style lang="scss">
 .v-navigation-drawer {
   position: fixed !important;
-  background: #141B2D;
+  background: var(--vxg-side-bg, #f5f5f5);
 }
 
 .v-navigation-drawer__content {
@@ -759,10 +782,10 @@ const DRAWER_STYLE = Object.freeze({
 }
 
 nav.vxg-side {
-  background-color: #141B2D !important;
+  background-color: var(--vxg-side-bg, #f5f5f5) !important;
 
   .v-sheet {
-    background-color: #141B2D !important;
+    background-color: var(--vxg-side-bg, #f5f5f5) !important;
   }
 
   .v-divider {
@@ -806,19 +829,19 @@ a.vxg-router-link {
   margin: 0px 8px;
   padding: 16px 8px;
   text-decoration: none !important;
-  color: rgb(var(--vxg-ct1)) !important;
+  color: var(--vxg-link-color, #1976d2) !important;
   border-radius: 8px;
 
   .v-icon {
-    color: rgb(var(--vxg-ct2)) !important;
+    color: var(--vxg-link-icon-color, #666) !important;
   }
 
   &.router-link-active {
-    background-color: rgb(var(--vxg-cb2)) !important;
-    color: rgb(var(--vxg-ct1)) !important;
+    background-color: var(--vxg-link-active-bg, #e3f2fd) !important;
+    color: var(--vxg-link-active-color, #1565c0) !important;
 
     .v-icon {
-      color: rgb(var(--vxg-ct1)) !important;
+      color: var(--vxg-link-active-color, #1565c0) !important;
     }
   }
 }
@@ -835,7 +858,7 @@ a.vxg-router-link {
 .magnifierIcon {
   margin: 3px 0 0 40px;
   font-size: large;
-  color: #141b2d;
+  color: var(--vxg-icon-color, #666);
 }
 
 img {

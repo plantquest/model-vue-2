@@ -12,6 +12,8 @@ import routes from './router'
 
 // Import model-vue components and composables
 import Vxg from '@plantquest/model-vue'
+// Import component styles
+import '../../../packages/model-vue/dist/vxg.css'
 
 // Create Vuex store with model-vue state structure
 const store = createStore({
@@ -195,8 +197,9 @@ const store = createStore({
     trigger_search({ state }, { a, b }) {
       return new Promise((resolve) => {
         if (state.trigger.search) {
-          state.trigger.search.a = a || ''
-          state.trigger.search.b = b || ''
+          // Only update fields that are explicitly provided to avoid clearing the other field
+          if (a !== undefined) state.trigger.search.a = a || ''
+          if (b !== undefined) state.trigger.search.b = b || ''
         }
         console.log('🔍 trigger_search:', { a, b })
         resolve()
@@ -250,7 +253,11 @@ const vuetify = createVuetify({
           error: '#FF5252',
           info: '#2196F3',
           success: '#4CAF50',
-          warning: '#FFC107'
+          warning: '#FFC107',
+          // PlantQuest custom colors for components
+          'pqs-green': '#4CAF50',
+          'pqs-blue': '#2196F3',
+          'pqs-gray': '#757575'
         }
       }
     }

@@ -11,7 +11,9 @@
       "require": "./dist/vxg.cjs.js",
       "types": "./dist/types/index.d.ts"
     },
-    "./dist/style.css": "./dist/vxg.css"
+    "./dist/style.css": "./dist/vxg.css",
+    "./dist/vxg.css": "./dist/vxg.css",
+    "./style.css": "./dist/vxg.css"
   },
   "types": "./dist/types/index.d.ts",
   "files": [
