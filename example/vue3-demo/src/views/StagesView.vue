@@ -167,6 +167,7 @@ const currentRouteDescription = ref('No route loaded')
 const lastSelectedStage = ref(null)
 
 const hasRoute = computed(() => store.state.pathData !== null)
+const currentStageValue = computed(() => store.state.currentStage)
 
 // Mock pathData examples for demo
 const pathDataExample = `{
