@@ -172,7 +172,7 @@ import { BasicSide } from '@plantquest/model-vue'
 const store = useStore()
 
 // State
-const isNavigationMode = computed(() => store.state.vxg.cmp.BasicSide.showSearch2)
+const isNavigationMode = computed(() => store.state.showSearch2 || false)
 
 // Sample assets for search
 const sampleAssets = ref([
@@ -195,8 +195,9 @@ const sampleAssets = ref([
 
 // Toggle navigation mode
 const toggleNavigationMode = () => {
-  store.state.vxg.cmp.BasicSide.showSearch2 = !store.state.vxg.cmp.BasicSide.showSearch2
-  console.log('🗺️ Navigation mode:', store.state.vxg.cmp.BasicSide.showSearch2 ? 'ON' : 'OFF')
+  store.state.showSearch2 = !store.state.showSearch2
+  store.state.vxg.cmp.BasicSide.showSearch2 = store.state.showSearch2
+  console.log('🗺️ Navigation mode:', store.state.showSearch2 ? 'ON' : 'OFF')
 }
 
 // Populate assets
