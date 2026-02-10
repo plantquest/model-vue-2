@@ -78,7 +78,7 @@ const emit = defineEmits<{
  * Handle stage selection from child component
  */
 const handleStageSelect = (index: number): void => {
-  console.log('Stage selected:', index)
+  console.log(`🚀 BasicNavStages.handleStageSelect: Stage ${index} selected, current activeStage=${activeStage.value}`)
   
   // Get the map value for the selected stage
   const selectedStage = stages.value[index]
@@ -86,6 +86,8 @@ const handleStageSelect = (index: number): void => {
   
   // Select stage using composable
   selectStageComposable(index)
+  
+  console.log(`📊 BasicNavStages.handleStageSelect: After selectStageComposable, activeStage=${activeStage.value}`)
   
   // Sync route with stage
   syncRouteWithStage(index)

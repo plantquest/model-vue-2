@@ -231,10 +231,12 @@ export function useNavStages() {
    * @param index - Stage index (0-based) or map value
    */
   const selectStage = (index: number): void => {
+    console.log(`🔄 useNavStages.selectStage: Setting activeStage from ${activeStage.value} to ${index}`)
     activeStage.value = index
     
     // Update store
     store.commit('setCurrentStage', index + 1)
+    console.log(`✅ useNavStages.selectStage: activeStage is now ${activeStage.value}`)
   }
 
   /**
