@@ -26,6 +26,9 @@
       </v-list>
     </v-navigation-drawer>
 
+    <!-- BasicSide Component (only on /side route) -->
+    <BasicSide v-if="$route.name === 'side' && showBasicSide" />
+
     <v-main>
       <v-container fluid>
         <router-view />
@@ -42,8 +45,10 @@
 
 <script setup>
 import { ref } from 'vue'
+import { BasicSide } from '@plantquest/model-vue'
 
 const drawer = ref(true)
+const showBasicSide = ref(true)
 
 const navItems = ref([
   { code: 'home', label: 'Home', icon: 'mdi-home', route: '/' },
