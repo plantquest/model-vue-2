@@ -28,30 +28,28 @@
 
       <!-- Search and Navigation for pqview route -->
       <div v-if="currentRoute === 'pqview'">
-        <!-- Layer 5 Icon (Search Mode Indicator) -->
+        <!-- Layer 5 Icon -->
         <div v-show="!showSearch2">
-          <v-icon
-            size="32"
-            color="white"
+          <img 
+            :src="`${publicPath}Layer_5.svg`" 
+            alt="Layer_5" 
+            class="Layer_5"
             style="position:absolute; z-index:1; margin:10px 0; margin-left:16px; cursor: pointer;"
-            @click="toggleSearch2(); toggleExpansion(); handleRoute()"
-          >
-            mdi-layers
-          </v-icon>
+            @click="toggleSearch2(); toggleExpansion(); handleRoute()" 
+          />
         </div>
 
-        <!-- Navigation Icon (Navigation Mode Indicator) -->
+        <!-- Navigation Icon -->
         <div 
           v-if="showSearch2" 
           style="display: flex; align-items: center; position: absolute; z-index: 10; margin-top: 36px;"
         >
-          <v-icon
-            size="48"
-            color="primary"
-            style="position:absolute; z-index:1; margin:10px 0; margin-left:16px; padding-top: 4px;"
-          >
-            mdi-navigation-variant
-          </v-icon>
+          <img 
+            :src="`${publicPath}navigation_1.svg`" 
+            alt="navigation_1" 
+            class="navigation_1"
+            style="position:absolute; z-index:1; margin:10px 0; margin-left:16px;height: 60px;padding-top: 4px;" 
+          />
           <div style="width: 253px;padding-left: 35px;">
             <hr aria-orientation="horizontal" style="margin: 0 5px !important;" />
           </div>
@@ -80,14 +78,14 @@
         />
 
         <!-- Filter Icon -->
-        <v-icon
-          v-if="filterIcon && !showSearch2"
-          style="cursor: pointer; position: relative; top: -33px; left: calc(100% - 40px); border-left: solid 1px; padding-left: 2px;"
-          color="white"
-          @click.stop.prevent="filter"
-        >
-          mdi-filter-variant
-        </v-icon>
+        <img 
+          :src="`${publicPath}Clip_path_group.svg`" 
+          alt="Clip_Path_group" 
+          style="cursor: pointer; position: relative; top: -33px; left: calc(100% - 33px); border-left: solid 1px; padding-left: 2px;" 
+          class="clip-path-group" 
+          v-if="filterIcon && !showSearch2" 
+          @click.stop.prevent="filter" 
+        />
 
         <!-- Secondary Search Combobox (Navigation Mode) -->
         <v-combobox 
@@ -106,14 +104,16 @@
           :filter="customFilter"
         />
 
-        <!-- Reverse Inputs Button -->
+        <!-- Reverse Inputs Button (Swap start/destination) -->
         <div v-if="showSearch2">
-          <img 
-            :src="`${publicPath}two-opposite-up-and-down-arrows-side-by-side.svg`"
-            alt="two-opposite-arrows-side-by-side"
-            style="cursor: pointer;position: relative;top: -49px; left: calc(100% - 29px); width:18px;margin-left: -18px; background: white; z-index: 999;"
-            @click="reverseInputs" 
-          />
+          <v-icon
+            size="18"
+            color="black"
+            style="cursor: pointer; position: relative; top: -49px; left: calc(100% - 29px); margin-left: -18px; background: white; z-index: 999; border-radius: 2px;"
+            @click="reverseInputs"
+          >
+            mdi-swap-vertical
+          </v-icon>
         </div>
 
         <!-- Path Data Display -->
@@ -233,8 +233,8 @@ const menuViewList = ref<any[]>([])
 const menuViewIndex = ref<number | null>(null)
 const menuView = ref<any>({ mode: 'standard', menu: { items: {}, order: '' } })
 const roomName = ref('')
-// Remove process.env reference - not available in browser
-// const publicPath = process.env.BASE_URL || '/'
+// Define publicPath without process.env (not available in browser)
+const publicPath = '/'  // Base path for assets
 const showIcon = ref(true)
 
 // Computed properties
