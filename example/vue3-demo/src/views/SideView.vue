@@ -87,14 +87,26 @@
         <v-card min-height="600">
           <v-card-title>BasicSide Component Preview</v-card-title>
           <v-card-text>
-            <div class="side-preview-container">
-              <p class="text-caption mb-2">
-                <strong>Note:</strong> The component will appear here. Use the Layer 5 icon to toggle between modes.
-              </p>
-              
-              <!-- BasicSide Component -->
-              <BasicSide />
-            </div>
+            <v-alert type="warning" class="mb-4">
+              <strong>Note:</strong> BasicSide uses v-navigation-drawer which needs to be at app root level.
+              It cannot be rendered inside a card. Click the hamburger menu (☰) in the top-left to see it.
+            </v-alert>
+            
+            <p class="mb-2">
+              <strong>To test BasicSide:</strong>
+            </p>
+            <ol>
+              <li>Click the hamburger menu (☰) in the app bar above</li>
+              <li>The side drawer will open showing the search box</li>
+              <li>Click "Load Sample Assets" button first</li>
+              <li>Type in the search box to find assets</li>
+              <li>Click the Layer 5 icon (📍) to toggle Navigation Mode</li>
+            </ol>
+            
+            <p class="text-caption mt-4">
+              The BasicSide component is rendered at the app level, not inline in this view.
+              This matches how it works in PlantQuest where it's always available as a side navigation drawer.
+            </p>
           </v-card-text>
         </v-card>
       </v-col>
