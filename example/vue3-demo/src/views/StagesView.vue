@@ -256,8 +256,10 @@ const handleStageSelected = (mapValue) => {
   lastSelectedStage.value = `Map/Level ${mapValue} - Clicked at ${new Date().toLocaleTimeString()}`
   console.log('📍 Stage selected - Map Level:', mapValue)
   
-  // Show visual feedback
-  alert(`✅ Stage Clicked!\n\nSelected Map/Level: ${mapValue}\n\nIn PlantQuest, this would:\n- Zoom to that floor level\n- Highlight the route segment\n- Update the map view`)
+  // Delay alert slightly to allow green highlighting to appear first
+  setTimeout(() => {
+    alert(`✅ Stage Clicked!\n\nSelected Map/Level: ${mapValue}\n\nIn PlantQuest, this would:\n- Zoom to that floor level\n- Highlight the route segment\n- Update the map view`)
+  }, 100)
 }
 </script>
 
