@@ -219,6 +219,7 @@ const loadComplexRoute = () => {
   }
   
   store.state.pathData = complexRoute
+  store.state.currentStage = 1 // Initialize to first stage (1-based)
   currentRouteDescription.value = 'Entrance (L1) → Lobby → Stairs to L2 → Hallway → Stairs to L3 → Office 301'
   console.log('✅ Loaded complex route')
 }
@@ -237,6 +238,7 @@ const loadMultiStairRoute = () => {
   }
   
   store.state.pathData = multiStairRoute
+  store.state.currentStage = 1 // Initialize to first stage (1-based)
   currentRouteDescription.value = 'Room A (L1) → Multiple Connectors → Room B (L2)'
   console.log('✅ Loaded multi-stair route')
 }
