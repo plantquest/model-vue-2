@@ -43,10 +43,14 @@ const handleClick = () => {
 .stage {
   width: 95%;
   height: 85px;
-  margin: 0px 4px 0px 7px;
+  margin: 0px 4px 5px 7px;
+  padding: 5px;
   cursor: pointer;
   transition: background-color 0.2s ease;
   background-color: white !important;
+  border-radius: 4px;
+  display: block;
+  position: relative;
 
   &:hover:not(.activated) {
     opacity: 0.9;
@@ -60,6 +64,7 @@ const handleClick = () => {
   font-weight: 700;
   top: 4px;
   left: 13px;
+  color: #000 !important;
 }
 
 .stage p {
@@ -71,6 +76,7 @@ const handleClick = () => {
   width: 94%;
   top: 3px;
   left: 13px;
+  color: #333 !important;
 }
 
 .stage.activated {

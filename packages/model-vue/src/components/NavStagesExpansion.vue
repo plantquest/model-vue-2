@@ -15,7 +15,7 @@
         </h4>
       </v-expansion-panel-title>
       
-      <v-expansion-panel-text style="padding-bottom: 10px; background-color: #DCEEEF;">
+      <v-expansion-panel-text style="padding: 10px 0 10px 0; background-color: #DCEEEF;">
         <NavStageItem
           v-for="(stage, index) in stages"
           :key="stage.id || `stage-${index}`"
@@ -80,8 +80,10 @@ watch(() => props.activeStage, (newVal) => {
 </script>
 
 <style lang="scss">
-.v-expansion-panel-content__wrap {
-  // border styling handled by parent
+// Vuetify 3 uses different class structure
+:deep(.v-expansion-panel-text__wrapper) {
+  padding: 0 !important;
+  background-color: transparent !important;
 }
 
 .v-expansion-panel.v-expansion-panel--active.v-item--active {
