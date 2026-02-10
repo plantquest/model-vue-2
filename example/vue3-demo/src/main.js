@@ -83,6 +83,10 @@ const store = createStore({
     trigger: {
       select: {
         value: null
+      },
+      search: {
+        a: '',  // Primary search value for navigation mode
+        b: ''   // Secondary search value for navigation mode
       }
     },
     // BasicSide navigation mode state (top-level for easy access)
@@ -183,6 +187,18 @@ const store = createStore({
     clear_path_data({ commit }) {
       return new Promise((resolve) => {
         commit('clear_path_data')
+        resolve()
+      })
+    },
+    
+    // Required by BasicSide search functionality
+    trigger_search({ state }, { a, b }) {
+      return new Promise((resolve) => {
+        if (state.trigger.search) {
+          state.trigger.search.a = a || ''
+          state.trigger.search.b = b || ''
+        }
+        console.log('🔍 trigger_search:', { a, b })
         resolve()
       })
     },
