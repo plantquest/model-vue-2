@@ -2,16 +2,19 @@
   <v-app>
     <!-- Simple header without complex components -->
     <v-app-bar app color="primary" dark>
-      <v-app-bar-nav-icon @click="drawer = !drawer" v-if="!isSideRoute"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title>Model-Vue 3 Demo</v-app-bar-title>
       <v-spacer></v-spacer>
       <v-chip v-if="isSideRoute && isNavigationActive" color="success" size="small">
         Navigation Mode Active
       </v-chip>
+      <v-btn v-if="isSideRoute" icon @click="showBasicSide = !showBasicSide" title="Toggle BasicSide">
+        <v-icon>{{ showBasicSide ? 'mdi-dock-right' : 'mdi-dock-left' }}</v-icon>
+      </v-btn>
     </v-app-bar>
 
-    <!-- Standard Navigation Drawer (all pages except /side) -->
-    <v-navigation-drawer v-if="!isSideRoute" v-model="drawer" app>
+    <!-- Standard Navigation Drawer (ALWAYS visible on left) -->
+    <v-navigation-drawer v-model="drawer" app location="left">
       <v-list>
         <v-list-item
           v-for="item in navItems"
@@ -27,12 +30,13 @@
       </v-list>
     </v-navigation-drawer>
 
-    <!-- BasicSide Component (only on /side route) -->
+    <!-- BasicSide Component (on RIGHT side, only on /side route) -->
     <BasicSide 
-      v-if="isSideRoute"
+      v-if="isSideRoute && showBasicSide"
       :key="route.path"
       :spec="basicSideSpec"
       :logo="basicSideLogo"
+      location="right"
     />
 
     <v-main>
@@ -58,6 +62,7 @@ import { BasicSide } from '@plantquest/model-vue'
 const route = useRoute()
 const store = useStore()
 const drawer = ref(true)
+const showBasicSide = ref(true) // Control BasicSide visibility
 
 // Computed property to check if we're on the side route
 const isSideRoute = computed(() => route.name === 'side')

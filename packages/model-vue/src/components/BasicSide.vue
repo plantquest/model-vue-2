@@ -2,7 +2,7 @@
   <v-navigation-drawer 
     v-model="open"
     app 
-    location="left"
+    :location="location"
     class="vxg-side" 
     :width="280"
     permanent 
