@@ -27,9 +27,33 @@
       </v-btn>
 
       <!-- Search and Navigation for pqview and side routes -->
-      <div v-if="currentRoute === 'pqview' || currentRoute === 'side'" style="position: relative;">
+      <div v-if="currentRoute === 'pqview' || currentRoute === 'side'" style="position: relative; padding: 0;">
+        <!-- Layer 5 Icon (Search Mode only) -->
+        <div v-show="!showSearch2" style="position: absolute; top: 8px; left: 16px; z-index: 10; pointer-events: auto;">
+          <img 
+            :src="`${publicPath}Layer_5.svg`" 
+            alt="Layer_5" 
+            class="Layer_5"
+            style="cursor: pointer; width: 24px; height: 24px;"
+            @click="toggleSearch2(); toggleExpansion(); handleRoute()" 
+          />
+        </div>
+
+        <!-- Navigation Icon (Navigation Mode only) -->
+        <div 
+          v-if="showSearch2" 
+          style="position: absolute; top: 8px; left: 16px; z-index: 5; pointer-events: none;"
+        >
+          <img 
+            :src="`${publicPath}navigation_1.svg`" 
+            alt="navigation_1" 
+            class="navigation_1"
+            style="height: 60px; display: block;" 
+          />
+        </div>
+
         <!-- Primary Search Combobox -->
-        <div style="position: relative; z-index: 2;">
+        <div style="position: relative; z-index: 1;">
           <v-combobox 
             ref="searchRef" 
             class="comboxSearch d-flex justify-space-between" 
@@ -52,42 +76,18 @@
           />
         </div>
 
-        <!-- Layer 5 Icon -->
-        <div v-show="!showSearch2" style="position: absolute; top: 8px; left: 16px; z-index: 3; pointer-events: auto;">
-          <img 
-            :src="`${publicPath}Layer_5.svg`" 
-            alt="Layer_5" 
-            class="Layer_5"
-            style="cursor: pointer; width: 24px; height: 24px;"
-            @click="toggleSearch2(); toggleExpansion(); handleRoute()" 
-          />
-        </div>
-
-        <!-- Navigation Icon -->
-        <div 
-          v-if="showSearch2" 
-          style="position: absolute; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; padding: 8px 0; pointer-events: none;"
-        >
-          <img 
-            :src="`${publicPath}navigation_1.svg`" 
-            alt="navigation_1" 
-            class="navigation_1"
-            style="margin-left: 16px; height: 60px; pointer-events: auto;" 
-          />
-          <div style="flex: 1; padding-left: 10px;">
-            <hr style="margin: 0 5px; border-color: #4CAF50;" />
-          </div>
-        </div>
-
-        <!-- Filter Icon -->
+        <!-- Filter Icon (Search Mode only) -->
         <img 
           :src="`${publicPath}Clip_path_group.svg`" 
           alt="Clip_Path_group" 
-          style="cursor: pointer; position: relative; top: -33px; left: calc(100% - 33px); border-left: solid 1px; padding-left: 2px;" 
+          style="cursor: pointer; position: relative; top: -33px; left: calc(100% - 33px); border-left: solid 1px; padding-left: 2px; z-index: 10;" 
           class="clip-path-group" 
           v-if="filterIcon && !showSearch2" 
           @click.stop.prevent="filter" 
         />
+
+        <!-- Horizontal Divider Line (Navigation Mode only) -->
+        <div v-if="showSearch2" style="position: relative; height: 1px; background-color: #4CAF50; margin: -6px 35px -6px 35px; z-index: 4;"></div>
 
         <!-- Secondary Search Combobox (Navigation Mode) -->
         <v-combobox 
@@ -103,7 +103,9 @@
           outlined 
           dense 
           clearable 
+          placeholder="Destination..."
           :filter="customFilter"
+          style="position: relative; z-index: 1;"
         />
 
         <!-- Reverse Inputs Button (Swap start/destination) -->
