@@ -288,7 +288,13 @@ const portal = computed(() => custom.value.special?.portal || {})
 const tool = computed(() => {
   const headtool = (window as any).$model?.main?.app?.web?.parts?.head?.tool || {}
   const viewtool = view.value.tool || {}
-  return { ...headtool, ...viewtool }
+  // Provide demo defaults for required tools
+  return { 
+    clear: { active: true },
+    select: { active: false },
+    ...headtool, 
+    ...viewtool 
+  }
 })
 
 const searchConfig = computed(() => custom.value.search_config || {})
