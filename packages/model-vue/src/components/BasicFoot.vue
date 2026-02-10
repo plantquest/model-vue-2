@@ -23,6 +23,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FooterLink } from '../types/components'
+import { getCurrentYear } from '../utils/date'
 
 /**
  * BasicFoot component props
@@ -55,7 +56,7 @@ const router = useRouter()
 /**
  * Current year for copyright display
  */
-const currentYear = computed(() => new Date().getFullYear())
+const currentYear = computed(() => getCurrentYear())
 
 /**
  * Handle link click events
@@ -74,13 +75,14 @@ const handleLinkClick = (link: FooterLink) => {
 <style lang="scss" scoped>
 .basic-footer {
   text-align: center;
-  color: #333;
+  color: rgb(var(--v-theme-on-surface));
+  opacity: 0.8;
   position: absolute;
   bottom: 0;
+  right: 0;
   z-index: 9999;
   width: max-content;
   height: 23px;
-  right: 0;
   background: transparent;
 }
 </style>

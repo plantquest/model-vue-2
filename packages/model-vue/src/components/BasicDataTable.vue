@@ -288,11 +288,12 @@
   
   </style>
   
-  <script>
-  
-  import { memoize } from 'lodash';
- 
-  export default {
+<script>
+
+import { memoize } from 'lodash';
+import { formatTableDate, now } from '../utils/date';
+
+export default {
     props: {
       spec: {
         type: Object,
@@ -371,7 +372,7 @@
     
       '$store.state.trigger.led.add' () {
         this.openItem({
-          last: Date.now()
+          last: now()
         })
       },
       '$store.state.trigger.search.term' (term) {
@@ -452,6 +453,7 @@
         });
 
         items.forEach((item) => {
+          // Store as Date object for sorting compatibility
           item.when = new Date(item.when); 
         });
  
@@ -645,7 +647,8 @@
       },
   
       formatdate(time) {
-        return new Date(time).toString()
+        // Use Day.js for consistent date formatting
+        return formatTableDate(time, 'full')
       },
   
   
