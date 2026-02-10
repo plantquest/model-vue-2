@@ -217,6 +217,7 @@ const {
   items, 
   items2,
   toggleSearch2,
+  toggleExpansion,
   clearFilter: clearFilterComposable,
   reverseInputs: reverseInputsComposable,
   loadAssets 
