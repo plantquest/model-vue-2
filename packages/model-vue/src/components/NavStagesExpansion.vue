@@ -59,12 +59,6 @@ const iconSrc = computed(() =>
   panelModel.value !== undefined ? 'nav_in.svg' : 'nav_out.svg'
 )
 
-const iconAlt = computed(() => 
-  panelModel.value !== undefined ? 'Collapse Icon' : 'Expand Icon'
-)
-
-const publicPath = process.env.BASE_URL || '/'
-
 const handleToggleIcon = () => {
   emit('toggle-icon')
 }
