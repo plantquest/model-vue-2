@@ -33,5 +33,10 @@ export default [
     path: '/stage-3',
     name: 'stage-3',
     component: () => import('../views/Stage3View.vue')
+  },
+  {
+    path: '/side',
+    name: 'side',
+    component: () => import('../views/SideView.vue')
   }
 ]

@@ -49,6 +49,7 @@ const navItems = ref([
   { code: 'home', label: 'Home', icon: 'mdi-home', route: '/' },
   { code: 'components', label: 'Components', icon: 'mdi-view-dashboard', route: '/components' },
   { code: 'stages', label: 'Stages', icon: 'mdi-stairs', route: '/stages' },
+  { code: 'side', label: 'Side Navigation', icon: 'mdi-menu', route: '/side' },
   { code: 'auth', label: 'Authentication', icon: 'mdi-login', route: '/auth' }
 ])
 </script>
