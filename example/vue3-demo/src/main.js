@@ -203,6 +203,15 @@ const store = createStore({
       })
     },
     
+    // Required by BasicSide navigation mode
+    toggleSideInfoCardVisibility({ state }, visible) {
+      return new Promise((resolve) => {
+        // In real PlantQuest, this toggles the info card in the side panel
+        console.log('ℹ️ toggleSideInfoCardVisibility:', visible)
+        resolve()
+      })
+    },
+    
     'auth/login'({ commit }, credentials) {
       return new Promise((resolve) => {
         setTimeout(() => {
