@@ -198,6 +198,7 @@ const loadSimpleRoute = () => {
   }
   
   store.state.pathData = simpleRoute
+  store.state.currentStage = 1 // Initialize to first stage (1-based)
   currentRouteDescription.value = 'Room 101 (L1) → Stairs → Room 201 (L2)'
   console.log('✅ Loaded simple route')
 }
