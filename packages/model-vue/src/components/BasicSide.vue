@@ -53,7 +53,12 @@
         </div>
 
         <!-- Primary Search Combobox (Start Location) -->
-        <div style="position: relative; z-index: 1; margin-bottom: 0;">
+        <div :style="{
+          position: 'relative',
+          zIndex: 1,
+          marginBottom: 0,
+          marginLeft: showSearch2 ? '48px' : '0'
+        }">
           <v-combobox 
             ref="searchRef" 
             class="comboxSearch d-flex justify-space-between" 
@@ -87,10 +92,10 @@
         />
 
         <!-- Horizontal Divider Line (Navigation Mode only) -->
-        <div v-if="showSearch2" style="position: relative; height: 1px; background-color: #4CAF50; margin: -6px 35px 6px 35px; z-index: 4;"></div>
+        <div v-if="showSearch2" style="position: relative; height: 1px; background-color: #4CAF50; margin: -6px 48px 6px 48px; z-index: 4;"></div>
 
         <!-- Secondary Search Combobox (Destination - Navigation Mode) -->
-        <div v-if="showSearch2" style="position: relative; z-index: 1; margin-top: 0;">
+        <div v-if="showSearch2" style="position: relative; z-index: 1; margin-top: 0; margin-left: 48px;">
           <v-combobox 
             class="comboxSearch2" 
             ref="search2Ref" 
