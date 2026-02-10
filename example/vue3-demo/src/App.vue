@@ -48,11 +48,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 import { BasicSide } from '@plantquest/model-vue'
 
+const store = useStore()
 const drawer = ref(true)
-const showBasicSide = ref(true)
 const basicSideLogo = '<div style="padding: 10px; color: white; background: #27324A; font-weight: bold;">🏢 PlantQuest</div>'
 const basicSideSpec = {
   footer: {
@@ -60,6 +61,8 @@ const basicSideSpec = {
   },
   view: {}
 }
+
+const isNavigationActive = computed(() => store.state.showSearch2 || false)
 
 const navItems = ref([
   { code: 'home', label: 'Home', icon: 'mdi-home', route: '/' },
