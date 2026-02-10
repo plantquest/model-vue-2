@@ -69,29 +69,31 @@
       </v-col>
 
       <v-col cols="12" md="6">
-        <v-card min-height="300">
+        <v-card>
           <v-card-title>Navigation Display</v-card-title>
           <v-card-text>
             <div v-if="hasRoute">
               <p class="mb-3"><strong>BasicNavStages Component Output:</strong></p>
               
-              <!-- Mock map container showing where component overlays -->
-              <div class="mock-map-container" style="position: relative; height: 400px; background: #f5f5f5; border: 2px dashed #ccc; border-radius: 4px;">
+              <!-- Mock map container with better spacing -->
+              <div class="mock-map-container" style="position: relative; min-height: 300px; background: #f5f5f5; border: 2px dashed #ccc; border-radius: 4px; overflow: visible;">
                 <div style="padding: 20px; text-align: center;">
                   <v-icon size="40" color="grey">mdi-map</v-icon>
                   <p class="text-caption mt-2">Mock Map View</p>
-                  <p class="text-caption">(BasicNavStages overlays here)</p>
+                  <p class="text-caption">(In PlantQuest, BasicNavStages overlays on the floor plan)</p>
                 </div>
                 
-                <!-- The actual BasicNavStages component -->
-                <div style="position: relative; margin-top: 20px;">
+                <!-- The actual BasicNavStages component with proper spacing -->
+                <div style="position: relative; padding: 20px;">
                   <BasicNavStages @stage-selected="handleStageSelected" />
                 </div>
               </div>
 
-              <v-divider class="my-4"></v-divider>
+              <v-alert type="success" class="mt-4" density="compact">
+                <strong>✅ Component Rendered!</strong> Click the expansion panel above to see navigation stages.
+              </v-alert>
 
-              <div>
+              <div class="mt-3">
                 <strong>Last Stage Selected:</strong> {{ lastSelectedStage || 'None' }}
               </div>
             </div>
@@ -248,7 +250,13 @@ const handleStageSelected = (mapValue) => {
 
 <style scoped>
 .mock-map-container {
-  overflow: visible;
+  overflow: visible !important;
+}
+
+.mock-map-container >>> .basic-nav-stages {
+  position: relative !important;
+  left: 0 !important;
+  top: 0 !important;
 }
 
 pre {
