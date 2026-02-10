@@ -28,28 +28,30 @@
 
       <!-- Search and Navigation for pqview route -->
       <div v-if="currentRoute === 'pqview'">
-        <!-- Layer 5 Icon -->
+        <!-- Layer 5 Icon (Search Mode Indicator) -->
         <div v-show="!showSearch2">
-          <img 
-            :src="`${publicPath}Layer_5.svg`" 
-            alt="Layer_5" 
-            class="Layer_5"
-            style="position:absolute; z-index:1; margin:10px 0; margin-left:16px"
-            @click="toggleSearch2(); toggleExpansion(); handleRoute()" 
-          />
+          <v-icon
+            size="32"
+            color="white"
+            style="position:absolute; z-index:1; margin:10px 0; margin-left:16px; cursor: pointer;"
+            @click="toggleSearch2(); toggleExpansion(); handleRoute()"
+          >
+            mdi-layers
+          </v-icon>
         </div>
 
-        <!-- Navigation Icon -->
+        <!-- Navigation Icon (Navigation Mode Indicator) -->
         <div 
           v-if="showSearch2" 
           style="display: flex; align-items: center; position: absolute; z-index: 10; margin-top: 36px;"
         >
-          <img 
-            :src="`${publicPath}navigation_1.svg`" 
-            alt="navigation_1" 
-            class="navigation_1"
-            style="position:absolute; z-index:1; margin:10px 0; margin-left:16px;height: 60px;padding-top: 4px;" 
-          />
+          <v-icon
+            size="48"
+            color="primary"
+            style="position:absolute; z-index:1; margin:10px 0; margin-left:16px; padding-top: 4px;"
+          >
+            mdi-navigation-variant
+          </v-icon>
           <div style="width: 253px;padding-left: 35px;">
             <hr aria-orientation="horizontal" style="margin: 0 5px !important;" />
           </div>
@@ -78,14 +80,14 @@
         />
 
         <!-- Filter Icon -->
-        <img 
-          :src="`${publicPath}Clip_path_group.svg`" 
-          alt="Clip_Path_group" 
-          style="cursor: pointer; position: relative; top: -33px; left: calc(100% - 33px); border-left: solid 1px; padding-left: 2px;" 
-          class="clip-path-group" 
-          v-if="filterIcon && !showSearch2" 
-          @click.stop.prevent="filter" 
-        />
+        <v-icon
+          v-if="filterIcon && !showSearch2"
+          style="cursor: pointer; position: relative; top: -33px; left: calc(100% - 40px); border-left: solid 1px; padding-left: 2px;"
+          color="white"
+          @click.stop.prevent="filter"
+        >
+          mdi-filter-variant
+        </v-icon>
 
         <!-- Secondary Search Combobox (Navigation Mode) -->
         <v-combobox 
@@ -231,7 +233,8 @@ const menuViewList = ref<any[]>([])
 const menuViewIndex = ref<number | null>(null)
 const menuView = ref<any>({ mode: 'standard', menu: { items: {}, order: '' } })
 const roomName = ref('')
-const publicPath = process.env.BASE_URL || '/'
+// Remove process.env reference - not available in browser
+// const publicPath = process.env.BASE_URL || '/'
 const showIcon = ref(true)
 
 // Computed properties
