@@ -192,10 +192,12 @@ interface Props {
     view?: any
   }
   logo?: string
+  location?: 'left' | 'right'
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  logo: ''
+  logo: '',
+  location: 'left'
 })
 
 // Emits
