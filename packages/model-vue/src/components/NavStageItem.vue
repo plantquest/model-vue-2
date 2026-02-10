@@ -76,5 +76,7 @@ const handleClick = () => {
 .stage.activated {
   background-color: #C0E28B !important;
   opacity: 1 !important;
+  border: 2px solid #8BC34A !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 </style>
