@@ -2,15 +2,16 @@
   <v-app>
     <!-- Simple header without complex components -->
     <v-app-bar app color="primary" dark>
+      <v-app-bar-nav-icon @click="drawer = !drawer" v-if="$route.name !== 'side'"></v-app-bar-nav-icon>
       <v-app-bar-title>Model-Vue 3 Demo</v-app-bar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="drawer = !drawer">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
+      <v-chip v-if="$route.name === 'side' && isNavigationActive" color="success" size="small">
+        Navigation Mode Active
+      </v-chip>
     </v-app-bar>
 
-    <!-- Simple navigation drawer -->
-    <v-navigation-drawer v-model="drawer" app>
+    <!-- Standard Navigation Drawer (all pages except /side) -->
+    <v-navigation-drawer v-model="drawer" app v-if="$route.name !== 'side'">
       <v-list>
         <v-list-item
           v-for="item in navItems"
@@ -28,7 +29,7 @@
 
     <!-- BasicSide Component (only on /side route) -->
     <BasicSide 
-      v-if="$route.name === 'side' && showBasicSide"
+      v-if="$route.name === 'side'"
       :spec="basicSideSpec"
       :logo="basicSideLogo"
     />
