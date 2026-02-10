@@ -27,14 +27,38 @@
       </v-btn>
 
       <!-- Search and Navigation for pqview and side routes -->
-      <div v-if="currentRoute === 'pqview' || currentRoute === 'side'">
+      <div v-if="currentRoute === 'pqview' || currentRoute === 'side'" style="position: relative;">
+        <!-- Primary Search Combobox -->
+        <div style="position: relative; z-index: 2;">
+          <v-combobox 
+            ref="searchRef" 
+            class="comboxSearch d-flex justify-space-between" 
+            v-model="search"
+            @keydown="changeSearch($event)" 
+            @click:clear="changeSearch($event)" 
+            @change="handleChangeSearch($event)"
+            :items="tagItems" 
+            flat 
+            hide-details 
+            outlined 
+            dense 
+            clearable 
+            placeholder="Search..." 
+            @click:append="filter"
+            :filter="customFilter" 
+            :prepend-inner-icon="prependIcon" 
+            @click="handleClick" 
+            @blur="handleBlur"
+          />
+        </div>
+
         <!-- Layer 5 Icon -->
-        <div v-show="!showSearch2">
+        <div v-show="!showSearch2" style="position: absolute; top: 8px; left: 16px; z-index: 3; pointer-events: auto;">
           <img 
             :src="`${publicPath}Layer_5.svg`" 
             alt="Layer_5" 
             class="Layer_5"
-            style="position:absolute; z-index:1; margin:10px 0; margin-left:16px; cursor: pointer;"
+            style="cursor: pointer; width: 24px; height: 24px;"
             @click="toggleSearch2(); toggleExpansion(); handleRoute()" 
           />
         </div>
@@ -42,40 +66,18 @@
         <!-- Navigation Icon -->
         <div 
           v-if="showSearch2" 
-          style="display: flex; align-items: center; position: absolute; z-index: 10; margin-top: 36px;"
+          style="position: absolute; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; padding: 8px 0; pointer-events: none;"
         >
           <img 
             :src="`${publicPath}navigation_1.svg`" 
             alt="navigation_1" 
             class="navigation_1"
-            style="position:absolute; z-index:1; margin:10px 0; margin-left:16px;height: 60px;padding-top: 4px;" 
+            style="margin-left: 16px; height: 60px; pointer-events: auto;" 
           />
-          <div style="width: 253px;padding-left: 35px;">
-            <hr aria-orientation="horizontal" style="margin: 0 5px !important;" />
+          <div style="flex: 1; padding-left: 10px;">
+            <hr style="margin: 0 5px; border-color: #4CAF50;" />
           </div>
         </div>
-
-        <!-- Primary Search Combobox -->
-        <v-combobox 
-          ref="searchRef" 
-          class="comboxSearch d-flex justify-space-between" 
-          v-model="search"
-          @keydown="changeSearch($event)" 
-          @click:clear="changeSearch($event)" 
-          @change="handleChangeSearch($event)"
-          :items="tagItems" 
-          flat 
-          hide-details 
-          outlined 
-          dense 
-          clearable 
-          placeholder="" 
-          @click:append="filter"
-          :filter="customFilter" 
-          :prepend-inner-icon="prependIcon" 
-          @click="handleClick" 
-          @blur="handleBlur"
-        />
 
         <!-- Filter Icon -->
         <img 
