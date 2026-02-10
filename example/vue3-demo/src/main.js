@@ -93,6 +93,11 @@ const store = createStore({
         state.vxg.ent.asset = {}
       }
       state.vxg.ent.asset.list = assets
+    },
+    // Required by BasicNavStages for stage selection
+    setCurrentStage(state, stageIndex) {
+      state.currentStage = stageIndex
+      console.log('✅ Current stage set to:', stageIndex)
     }
   },
   actions: {
@@ -107,6 +112,15 @@ const store = createStore({
         // In real PlantQuest, this would process and store path details
         // For demo, just resolve successfully
         resolve({ success: true, pathDetails })
+      })
+    },
+    
+    // Required by BasicNavStages and useStageRouting for stage selection
+    setCurrentStage({ commit }, stageIndex) {
+      return new Promise((resolve) => {
+        commit('setCurrentStage', stageIndex)
+        console.log('✅ setCurrentStage action: navigated to stage', stageIndex)
+        resolve()
       })
     },
     

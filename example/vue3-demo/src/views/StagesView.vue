@@ -243,8 +243,11 @@ const clearRoute = () => {
 
 // Handle stage selection from BasicNavStages
 const handleStageSelected = (mapValue) => {
-  lastSelectedStage.value = `Map/Level ${mapValue}`
-  console.log('📍 Stage selected:', mapValue)
+  lastSelectedStage.value = `Map/Level ${mapValue} - Clicked at ${new Date().toLocaleTimeString()}`
+  console.log('📍 Stage selected - Map Level:', mapValue)
+  
+  // Show visual feedback
+  alert(`✅ Stage Clicked!\n\nSelected Map/Level: ${mapValue}\n\nIn PlantQuest, this would:\n- Zoom to that floor level\n- Highlight the route segment\n- Update the map view`)
 }
 </script>
 

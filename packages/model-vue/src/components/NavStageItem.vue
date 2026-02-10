@@ -32,10 +32,17 @@ const emit = defineEmits<{
   height: 85px;
   margin: 0px 4px 0px 7px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
 
   &:hover {
     opacity: 0.9;
+    background-color: #f0f0f0 !important;
+    border-color: #1976D2;
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
