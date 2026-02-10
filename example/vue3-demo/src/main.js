@@ -85,6 +85,9 @@ const store = createStore({
         value: null
       }
     },
+    // BasicSide navigation mode state (top-level for easy access)
+    showSearch2: false,  // False = Search mode, True = Navigation mode
+    showExpansion: false,  // Expansion panel state
     main_asset: [
       { map: 1, custom02: 'Level 1', x: 100, y: 200 },
       { map: 2, custom02: 'Level 2', x: 150, y: 250 },
