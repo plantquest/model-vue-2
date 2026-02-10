@@ -93,9 +93,15 @@
                 <strong>✅ Component Rendered!</strong> Click the expansion panel above to see navigation stages.
               </v-alert>
 
-              <div class="mt-3">
-                <strong>Last Stage Selected:</strong> {{ lastSelectedStage || 'None' }}
-              </div>
+              <v-alert type="success" density="compact" class="mt-3">
+                <strong>Stage Selection Info:</strong><br>
+                Last Clicked: {{ lastSelectedStage || 'None' }}<br>
+                Current Stage in Store: {{ currentStageValue }}
+              </v-alert>
+              
+              <p class="text-caption mt-2">
+                <strong>Expected behavior:</strong> When you click a stage, it should turn green (background #C0E28B) to show it's selected.
+              </p>
             </div>
             <div v-else>
               <v-alert type="info" icon="mdi-information">
