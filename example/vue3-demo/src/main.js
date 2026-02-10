@@ -100,6 +100,16 @@ const store = createStore({
       commit('SET_CMP_FLAGS', payload)
     },
     
+    // Required by BasicNavStages for route parsing
+    set_path_data({ state }, { pathDetails }) {
+      return new Promise((resolve) => {
+        console.log('✅ set_path_data action called with:', pathDetails)
+        // In real PlantQuest, this would process and store path details
+        // For demo, just resolve successfully
+        resolve({ success: true, pathDetails })
+      })
+    },
+    
     // Required by BasicHead and BasicSide components
     vxg_get_assets({ state, commit }, tool) {
       return new Promise((resolve) => {
