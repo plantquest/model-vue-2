@@ -1,0 +1,192 @@
+{
+  "id": "SPEC-000003",
+  "title": "Backup Delivery Plane for Offline Asset Access",
+  "status": "draft",
+  "risk": "medium",
+  "acceptanceCriteria": [
+    "Tablet can download asset bundle when Seneca server is completely unavailable",
+    "Download requires valid Kinde JWT - unauthenticated requests return 401",
+    "Tenant A cannot access Tenant B bundles (cross-tenant isolation verified)",
+    "Presigned URLs expire within 300 seconds",
+    "Bundle sha256 integrity is verified before decryption on device",
+    "Cached bundle is used as fallback when both Seneca and AWS are unreachable",
+    "Bundle versions are never overwritten - rollback possible to any previous version",
+    "No AWS credentials are present in the tablet app or frontend code",
+    "S3 bucket has no public access (Block Public Access enabled)",
+    "Bundles are encrypted at rest (KMS) and in transit (HTTPS)",
+    "Bundle Builder Lambda produces a valid bundle for each active tenant at least every 60 minutes",
+    "latest.json pointer is atomically updated only after successful bundle upload and validation",
+    "Cached bundles on device are encrypted at rest (IndexedDB with encryption layer)",
+    "Cached bundles expire after validUntil timestamp and show degraded-mode warning to users",
+    "Frontend BackupService does not consume connection pool slots (DEC-000015)",
+    "CloudFormation Backup Stack deploys independently from VPC and Application stacks",
+    "Monitoring and alerting configured for bundle generation failures and signer errors"
+  ],
+  "affectedPaths": [
+    "infra/cloudformation/backup-stack.yaml",
+    "infra/lambda/bundle-builder/",
+    "infra/lambda/signer/",
+    "infra/lambda/jwt-authorizer/",
+    "src/services/BackupService.js",
+    "src/services/IndexedDBCache.js",
+    "packages/model-vue/src/composables/useBackup.ts"
+  ],
+  "relatedDecisions": [
+    "DEC-000019",
+    "DEC-000005",
+    "DEC-000007",
+    "DEC-000013",
+    "DEC-000014",
+    "DEC-000015"
+  ],
+  "relatedRisks": [
+    "RA-000004"
+  ],
+  "technicalRequirements": {
+    "s3_layout": {
+      "bucket_name": "pq-backups-{stage}",
+      "prefix_scheme": "tenant/{tenantId}/",
+      "objects": {
+        "latest.json": "Pointer to current bundle (bundleId, sha256, sequenceNum, validUntil)",
+        "bundles/bundle-v{seq}-{hash}.zip.enc": "Encrypted asset data bundle",
+        "manifests/manifest-v{seq}.json": "Bundle manifest with entity counts, timestamps, integrity"
+      },
+      "versioning": "S3 versioning ON",
+      "encryption": "SSE-KMS with per-tenant CMK",
+      "lifecycle": "Expire bundles older than 90 days, transition to Glacier after 30 days",
+      "public_access": "Block all public access"
+    },
+    "signer_lambda": {
+      "runtime": "nodejs20.x",
+      "memory": 256,
+      "timeout_seconds": 10,
+      "endpoint": "GET /v1/tenants/{tenantId}/backup-url",
+      "auth": "Kinde JWT via API Gateway Lambda Authorizer",
+      "response": {
+        "url": "presigned S3 GET URL (300s expiry)",
+        "expiresAt": "ISO 8601 timestamp",
+        "bundleId": "bundle identifier",
+        "sha256": "hex-encoded SHA-256 of the bundle",
+        "sequenceNum": "monotonically increasing integer",
+        "validUntil": "ISO 8601 timestamp for cache validity"
+      }
+    },
+    "builder_lambda": {
+      "runtime": "nodejs20.x",
+      "memory": 1024,
+      "timeout_seconds": 300,
+      "trigger": "EventBridge cron (every 60 minutes)",
+      "process": [
+        "1. List active tenants from config (DynamoDB or S3 allowlist)",
+        "2. For each tenant: read all pqs/asset, pqs/sap, pqs/group entities from DynamoDB",
+        "3. Package into ZIP with manifest",
+        "4. Encrypt with KMS envelope encryption (per-tenant CMK)",
+        "5. Upload to S3 with versioned key",
+        "6. Validate uploaded object (head + checksum)",
+        "7. Atomically update latest.json",
+        "8. Publish success/failure metric to CloudWatch"
+      ]
+    },
+    "jwt_authorizer": {
+      "runtime": "nodejs20.x",
+      "memory": 128,
+      "timeout_seconds": 5,
+      "verification": [
+        "Validate JWT signature against Kinde JWKS endpoint (cached)",
+        "Verify issuer matches VUE_APP_KINDE_DOMAIN",
+        "Verify audience matches expected client ID",
+        "Verify exp not past",
+        "Extract org_code/org_id claim for tenant scoping",
+        "Return IAM policy allowing invoke on matched tenantId path only"
+      ]
+    },
+    "frontend_backup_service": {
+      "health_check": "Detect Seneca unavailability via failed API calls or explicit health endpoint",
+      "download": "Fetch presigned URL from signer, download bundle, verify sha256",
+      "decryption": "Decrypt bundle using Web Crypto API with key from signer response",
+      "caching": "Store in IndexedDB via Dexie.js, encrypted at rest",
+      "fallback": "On total connectivity loss, serve last-known-good cached bundle",
+      "cache_validity": "Respect validUntil field; warn users when serving expired cache",
+      "connection_pool": "Use standalone fetch(), NOT the Seneca connection pool (DEC-000015)"
+    },
+    "infrastructure": {
+      "stack": "Separate CloudFormation 'Backup Stack' (independent from VPC and Application stacks)",
+      "resources": [
+        "S3 bucket with KMS encryption",
+        "KMS key(s) for bundle encryption",
+        "Lambda: Bundle Builder",
+        "Lambda: Signer",
+        "Lambda: JWT Authorizer",
+        "API Gateway (REST, regional)",
+        "EventBridge rule (cron trigger)",
+        "CloudWatch alarms (builder failures, signer errors, latency)",
+        "IAM roles and policies (least privilege)"
+      ]
+    }
+  },
+  "api_contract": {
+    "signer_endpoint": {
+      "method": "GET",
+      "path": "/v1/tenants/{tenantId}/backup-url",
+      "headers": {
+        "Authorization": "Bearer <kinde-jwt>"
+      },
+      "success_response": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "url": "https://pq-backups-prod.s3.eu-west-1.amazonaws.com/tenant/t123/bundles/bundle-v42-abc123.zip.enc?X-Amz-...",
+          "expiresAt": "2026-02-12T14:05:00Z",
+          "bundleId": "bundle-v42-abc123",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "sequenceNum": 42,
+          "validUntil": "2026-02-12T15:00:00Z"
+        }
+      },
+      "error_responses": {
+        "401": "Missing or invalid JWT",
+        "403": "User not authorized for this tenant",
+        "404": "No bundle available for tenant",
+        "500": "Internal error generating presigned URL"
+      }
+    }
+  },
+  "data_flow": {
+    "bundle_generation": "EventBridge → Builder Lambda → DynamoDB (read) → ZIP + Encrypt → S3 (write) → latest.json (update)",
+    "bundle_delivery": "Tablet App → Kinde JWT → API Gateway → JWT Authorizer → Signer Lambda → S3 presigned URL → Tablet downloads → Verify → Decrypt → IndexedDB cache",
+    "offline_fallback": "Tablet App → Check signer endpoint → Fail → Load from IndexedDB cache → Check validUntil → Serve (with warning if expired)"
+  },
+  "deliverables": [
+    "CloudFormation Backup Stack template (S3, KMS, Lambdas, API Gateway, EventBridge)",
+    "Bundle Builder Lambda (Node.js 20.x)",
+    "Signer Lambda (Node.js 20.x)",
+    "JWT Authorizer Lambda (Node.js 20.x)",
+    "Frontend BackupService (Vue 2.x compatible, Promise-based)",
+    "Frontend IndexedDB caching layer (Dexie.js)",
+    "Vue 3 useBackup composable (for post-migration)",
+    "Integration test suite (auth flow, download, cross-tenant, offline fallback)",
+    "CloudWatch dashboard and alarms",
+    "Operations runbook (key rotation, monitoring, incident response)",
+    "Architecture decision record (DEC-000019)",
+    "Risk acceptance record (RA-000004)"
+  ],
+  "timeline": {
+    "week_1": "Infrastructure: S3 bucket, KMS keys, IAM roles, JWT Authorizer Lambda",
+    "week_2": "Signer Lambda + API Gateway endpoint, basic end-to-end auth flow",
+    "week_3": "Bundle Builder Lambda, EventBridge cron, DynamoDB read + package + encrypt + upload",
+    "week_4": "Frontend BackupService, health detection, download + verify + decrypt",
+    "week_5": "IndexedDB caching layer, offline fallback, cache validity, degraded-mode UI",
+    "week_6": "CloudFormation stack, integration testing, cross-tenant isolation tests",
+    "week_7": "Hardening, monitoring, alerting, ops runbook, documentation",
+    "total_duration": "5-7 weeks",
+    "risk_buffer": "1 week for KMS multi-tenant complexity and tablet IndexedDB edge cases"
+  },
+  "success_metrics": {
+    "availability": "Backup data accessible within 30s when Seneca is down",
+    "freshness": "Bundle no more than 60 minutes stale",
+    "security": "Zero cross-tenant access in penetration testing",
+    "performance": "Signer response < 500ms (p99, excluding cold start)",
+    "reliability": "Bundle generation success rate > 99.5%",
+    "cost": "< $15/month per tenant at low volume"
+  }
+}

@@ -405,18 +405,22 @@ const changeSearch = async (event: any) => {
     }
   }
 
+  // Capture search2 value BEFORE setTimeout to avoid race conditions
+  const currentSearchB = search2.value
+
   setTimeout(async () => {
     const term = event.target ? event.target.value : null
     
     // Update URL based on current mode
     if (showSearch2State.value) {
       // Navigation mode: preserve both A and B fields
+      // Use captured search2 value to prevent clearing
       router.replace({
         path: route.path,
         query: {
           mode: 'route',
-          a: term,
-          b: search2.value
+          a: term || '',
+          b: currentSearchB || ''  // Use captured value
         }
       }).catch(handleRouterError)
     } else {
@@ -436,17 +440,21 @@ const changeSearch = async (event: any) => {
 }
 
 const changeSearch2 = async (event: any) => {
+  // Capture search value BEFORE setTimeout to avoid race conditions
+  const currentSearchA = search.value
+
   setTimeout(async () => {
     const term = event.target ? event.target.value : null
     
     // Update URL for navigation mode (FIX: was missing)
     if (showSearch2State.value) {
+      // Use captured search value to prevent clearing
       router.replace({
         path: route.path,
         query: {
           mode: 'route',
-          a: search.value,
-          b: term
+          a: currentSearchA || '',  // Use captured value
+          b: term || ''
         }
       }).catch(handleRouterError)
     }

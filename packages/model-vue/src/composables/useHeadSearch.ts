@@ -17,13 +17,11 @@ import type { Store } from 'vuex'
 import type { Router, RouteLocationNormalized } from 'vue-router'
 
 /**
- * Asset interface matching the application data structure
+ * Asset interface matching the application data structure.
+ * Re-exported from types/components.ts for convenience.
+ * Full field schema: see provenance/schema/pqs-asset.schema.json
  */
-export interface Asset {
-  tag: string
-  custom12?: string
-  [key: string]: any
-}
+export type { Asset } from '../types/components'
 
 /**
  * Search configuration from model

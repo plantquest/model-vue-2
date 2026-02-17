@@ -1,0 +1,347 @@
+{
+  "id": "SPEC-000004",
+  "title": "Backup Delivery Plane LITE - 2-3 Day Quick Build",
+  "status": "draft",
+  "risk": "low",
+  "variant_of": "SPEC-000003",
+  "philosophy": "Ship the happy path in 2-3 days. Defer encryption, multi-tenant isolation, IndexedDB, monitoring, and CloudFormation to SPEC-000003 phase 2. Prove the data flows end-to-end first.",
+
+  "what_is_cut": {
+    "deferred_to_spec_000003": [
+      "Per-tenant KMS Customer Managed Keys → use SSE-S3 default encryption",
+      "JWT Authorizer Lambda → reuse existing Kinde auth middleware on API Gateway",
+      "Separate Signer Lambda → presigned URL generated inline in a single Lambda",
+      "IndexedDB + Dexie.js encrypted caching → simple localStorage JSON cache",
+      "Bundle ZIP packaging → plain JSON file (no compression needed for <5MB)",
+      "Bundle manifests → skip (sha256 in latest.json is sufficient)",
+      "S3 versioning and lifecycle rules → single overwrite of latest bundle",
+      "CloudFormation stack → deploy via AWS CLI / Serverless Framework",
+      "CloudWatch alarms and dashboard → console.error + basic CloudWatch Logs",
+      "Degraded-mode UI with cache validity warnings → simple error banner",
+      "Vue 3 useBackup composable → defer to migration",
+      "Cross-tenant penetration testing → manual verification only",
+      "Operations runbook → defer"
+    ],
+    "kept_from_spec_000003": [
+      "S3 bucket with Block Public Access and SSE-S3 encryption",
+      "Single Builder Lambda reads DynamoDB, writes JSON to S3",
+      "Presigned URL endpoint (single Lambda handles auth check + URL generation)",
+      "EventBridge cron trigger for periodic bundle generation",
+      "Frontend fetch of presigned URL and JSON download",
+      "SHA-256 integrity check on downloaded bundle",
+      "Load bundle directly into vxg.ent.asset.list",
+      "localStorage fallback cache for offline use",
+      "Full 82+ field asset schema per pqs-asset.schema.json (DEC-000020)"
+    ]
+  },
+
+  "acceptanceCriteria": [
+    "Frontend can download asset bundle JSON from S3 via presigned URL",
+    "Builder Lambda reads all pqs/asset entities from DynamoDB and writes JSON to S3",
+    "Bundle JSON contains all 82+ asset fields per pqs-asset.schema.json",
+    "Room/Area assets include poly field with polygon coordinates",
+    "Presigned URL endpoint requires a valid Kinde JWT (401 on missing/invalid token)",
+    "Bundle is regenerated on a schedule (EventBridge cron, default every 60 minutes)",
+    "latest.json pointer updated after successful bundle upload",
+    "Frontend falls back to localStorage cached bundle when S3/network unavailable",
+    "SHA-256 hash verified on download before loading into store",
+    "No AWS credentials exposed in frontend code",
+    "S3 bucket has Block Public Access enabled"
+  ],
+
+  "affectedPaths": [
+    "infra/lambda/backup-lite/",
+    "src/services/BackupServiceLite.js",
+    "packages/model-vue/src/composables/useBackupLite.ts"
+  ],
+
+  "relatedDecisions": [
+    "DEC-000020",
+    "DEC-000019",
+    "DEC-000007"
+  ],
+
+  "relatedSpecs": [
+    "SPEC-000003"
+  ],
+
+  "technicalRequirements": {
+    "s3_layout": {
+      "bucket_name": "pq-backups-{stage}",
+      "prefix_scheme": "tenant/{tenantId}/",
+      "objects": {
+        "latest.json": "Pointer: { bundleUrl, sha256, generatedAt, assetCount, validUntil }",
+        "bundles/assets-latest.json": "Plain JSON array of all pqs/asset entities"
+      },
+      "encryption": "SSE-S3 (default server-side encryption, no custom KMS keys)",
+      "public_access": "Block all public access",
+      "versioning": "OFF (overwrite latest bundle each cycle - versioning added in SPEC-000003 phase 2)"
+    },
+
+    "builder_lambda": {
+      "name": "pqs-backup-builder-lite",
+      "runtime": "nodejs20.x",
+      "memory": 512,
+      "timeout_seconds": 120,
+      "trigger": "EventBridge cron (every 60 minutes, configurable)",
+      "env_vars": {
+        "STAGE": "dev|staging|prod",
+        "DYNAMODB_TABLE": "PqsAsset.{STAGE}",
+        "S3_BUCKET": "pq-backups-{STAGE}",
+        "TENANT_ID": "Single tenant ID (multi-tenant iteration in SPEC-000003)"
+      },
+      "process": [
+        "1. DynamoDB full scan of PqsAsset.{STAGE} table",
+        "2. Map each item to full pqs/asset entity format (all 82+ fields per pqs-asset.schema.json)",
+        "3. Compute SHA-256 of JSON output",
+        "4. Upload assets-latest.json to S3: tenant/{tenantId}/bundles/assets-latest.json",
+        "5. Update latest.json pointer with sha256, generatedAt, assetCount, validUntil",
+        "6. Log success/failure to CloudWatch Logs"
+      ],
+      "entity_mapping": {
+        "description": "DynamoDB items mapped to Seneca pqs/asset format",
+        "entity$": "Always set to '-/pqs/asset'",
+        "field_passthrough": "All 82+ fields passed through as-is from DynamoDB item",
+        "poly_handling": "If DynamoDB item has 'poly' attribute (List of Lists), include as number[][] in JSON output"
+      }
+    },
+
+    "presigner_lambda": {
+      "name": "pqs-backup-presigner-lite",
+      "runtime": "nodejs20.x",
+      "memory": 256,
+      "timeout_seconds": 10,
+      "description": "Single Lambda that validates the caller's Kinde JWT and returns a presigned S3 URL for the latest bundle. Combines the Signer + JWT Authorizer from SPEC-000003 into one function for simplicity.",
+      "endpoint": "GET /v1/backup/{tenantId}",
+      "auth": "Kinde JWT validated inline (verify signature against JWKS, check exp, extract org_code)",
+      "env_vars": {
+        "S3_BUCKET": "pq-backups-{STAGE}",
+        "KINDE_DOMAIN": "VUE_APP_KINDE_DOMAIN",
+        "KINDE_AUDIENCE": "expected client ID",
+        "PRESIGNED_URL_EXPIRY_SECONDS": "300"
+      },
+      "process": [
+        "1. Extract Bearer token from Authorization header",
+        "2. Validate JWT: signature (JWKS), exp, iss, aud",
+        "3. Extract org_code claim, verify matches {tenantId} path param",
+        "4. Read latest.json from S3: tenant/{tenantId}/latest.json",
+        "5. Generate presigned GET URL for bundles/assets-latest.json (300s expiry)",
+        "6. Return { ok, url, sha256, generatedAt, assetCount, validUntil }"
+      ],
+      "response": {
+        "ok": true,
+        "url": "presigned S3 GET URL (300s expiry)",
+        "sha256": "hex SHA-256 of the bundle JSON",
+        "generatedAt": "ISO 8601 timestamp of last build",
+        "assetCount": "number of assets in the bundle",
+        "validUntil": "ISO 8601 timestamp (generatedAt + 2 hours)"
+      },
+      "errors": {
+        "401": "Missing or invalid JWT",
+        "403": "JWT org_code does not match tenantId",
+        "404": "No bundle found for tenant (latest.json missing)",
+        "500": "Internal error"
+      }
+    },
+
+    "frontend_backup_service": {
+      "filename": "BackupServiceLite.js",
+      "pattern": "Promise-based, Vue 2.x compatible (DEC-000003)",
+      "methods": {
+        "fetchBundle(tenantId)": {
+          "description": "Get presigned URL, download JSON, verify SHA-256, return assets array",
+          "flow": [
+            "1. GET /v1/backup/{tenantId} with Kinde JWT in Authorization header",
+            "2. Receive { url, sha256, assetCount, validUntil }",
+            "3. fetch(url) to download plain JSON from S3",
+            "4. Compute SHA-256 of response body, compare with sha256 from step 2",
+            "5. Parse JSON array",
+            "6. Cache in localStorage: key='pqs_backup_{tenantId}', value={ assets, sha256, validUntil, cachedAt }",
+            "7. Return assets array"
+          ]
+        },
+        "loadFromCache(tenantId)": {
+          "description": "Load cached bundle from localStorage",
+          "flow": [
+            "1. Read localStorage key 'pqs_backup_{tenantId}'",
+            "2. If missing, return null",
+            "3. If validUntil has passed, log warning but still return (stale data better than no data)",
+            "4. Return cached assets array"
+          ]
+        },
+        "loadAssets(tenantId)": {
+          "description": "Primary method: try network first, fall back to cache",
+          "flow": [
+            "1. Call fetchBundle(tenantId)",
+            "2. On success: load into vxg.ent.asset.list, return",
+            "3. On failure: call loadFromCache(tenantId)",
+            "4. If cache hit: load into vxg.ent.asset.list, show 'Using cached data' banner",
+            "5. If no cache: show error banner 'Unable to load assets'"
+          ]
+        }
+      },
+      "localStorage_schema": {
+        "key": "pqs_backup_{tenantId}",
+        "value": {
+          "assets": "JSON array of pqs/asset entities",
+          "sha256": "bundle integrity hash",
+          "validUntil": "ISO 8601",
+          "cachedAt": "ISO 8601"
+        },
+        "size_note": "localStorage limit is ~5-10MB. For deployments with >5000 assets or large poly arrays, this may exceed the limit. SPEC-000003 IndexedDB migration solves this."
+      }
+    },
+
+    "infrastructure": {
+      "deploy_method": "AWS CLI or Serverless Framework (no CloudFormation stack - deferred to SPEC-000003)",
+      "resources": [
+        "S3 bucket: pq-backups-{stage} with Block Public Access + SSE-S3",
+        "Lambda: pqs-backup-builder-lite (512MB, 120s timeout)",
+        "Lambda: pqs-backup-presigner-lite (256MB, 10s timeout)",
+        "API Gateway: REST endpoint for presigner",
+        "EventBridge: cron rule for builder (every 60 min)",
+        "IAM: builder reads DynamoDB + writes S3, presigner reads S3 + generates presigned URLs"
+      ]
+    }
+  },
+
+  "api_contract": {
+    "presigner_endpoint": {
+      "method": "GET",
+      "path": "/v1/backup/{tenantId}",
+      "headers": {
+        "Authorization": "Bearer <kinde-jwt>"
+      },
+      "success_response": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "url": "https://pq-backups-dev.s3.eu-west-1.amazonaws.com/tenant/t123/bundles/assets-latest.json?X-Amz-...",
+          "sha256": "a1b2c3d4...",
+          "generatedAt": "2026-02-12T14:00:00Z",
+          "assetCount": 1247,
+          "validUntil": "2026-02-12T16:00:00Z"
+        }
+      },
+      "error_responses": {
+        "401": "Missing or invalid JWT",
+        "403": "JWT org_code does not match tenantId",
+        "404": "No bundle found for tenant",
+        "500": "Internal error"
+      }
+    }
+  },
+
+  "data_flow": {
+    "bundle_generation": "EventBridge (cron) → Builder Lambda → DynamoDB (full scan) → JSON → S3 (upload) → latest.json (update)",
+    "bundle_delivery": "Frontend → Kinde JWT → API Gateway → Presigner Lambda (JWT verify + presigned URL) → Frontend downloads JSON from S3",
+    "offline_fallback": "Frontend → Presigner fails → localStorage cache → Load into store (with stale data warning)"
+  },
+
+  "deliverables": [
+    "Builder Lambda: DynamoDB scan → JSON → S3 (Node.js 20.x)",
+    "Presigner Lambda: JWT verify + presigned URL generation (Node.js 20.x)",
+    "API Gateway endpoint: GET /v1/backup/{tenantId}",
+    "EventBridge cron rule (60 min)",
+    "Frontend BackupServiceLite.js (Promise-based, Vue 2.x)",
+    "IAM roles (least privilege)",
+    "S3 bucket setup script / CLI commands",
+    "Basic smoke test (generate bundle, fetch URL, download, verify)"
+  ],
+
+  "timeline": {
+    "day_1": {
+      "morning": "S3 bucket creation (CLI), IAM roles, Builder Lambda scaffolding",
+      "afternoon": "Builder Lambda: DynamoDB scan, map to full 82+ field schema, write JSON to S3, update latest.json"
+    },
+    "day_2": {
+      "morning": "Presigner Lambda: JWT validation (inline JWKS verify), presigned URL generation",
+      "afternoon": "API Gateway setup, wire up Presigner Lambda, end-to-end test (curl with JWT → get URL → download JSON)"
+    },
+    "day_3": {
+      "morning": "Frontend BackupServiceLite.js: fetchBundle, loadFromCache, loadAssets methods",
+      "afternoon": "Wire into app (call loadAssets on startup or on Seneca failure), localStorage caching, basic error banner, EventBridge cron rule, smoke test"
+    },
+    "total_duration": "2-3 days",
+    "risk_buffer": "Half day for DynamoDB scan pagination edge cases or JWT JWKS caching"
+  },
+
+  "upgrade_path_to_spec_000003": {
+    "description": "SPEC-000004 lite is designed as a stepping stone. Each component can be upgraded independently to SPEC-000003 full spec.",
+    "upgrades": [
+      {
+        "component": "Encryption",
+        "lite": "SSE-S3 default encryption",
+        "full": "SSE-KMS with per-tenant Customer Managed Keys",
+        "effort": "1 day"
+      },
+      {
+        "component": "Auth",
+        "lite": "Inline JWT validation in Presigner Lambda",
+        "full": "Separate JWT Authorizer Lambda at API Gateway level",
+        "effort": "0.5 day"
+      },
+      {
+        "component": "Bundling",
+        "lite": "Plain JSON file",
+        "full": "ZIP with manifest, KMS envelope encryption",
+        "effort": "1 day"
+      },
+      {
+        "component": "Caching",
+        "lite": "localStorage (5-10MB limit)",
+        "full": "IndexedDB via Dexie.js with encryption at rest",
+        "effort": "2-3 days"
+      },
+      {
+        "component": "Versioning",
+        "lite": "Overwrite latest bundle",
+        "full": "S3 versioning, versioned keys, rollback support",
+        "effort": "0.5 day"
+      },
+      {
+        "component": "Multi-tenant",
+        "lite": "Single tenant per deployment (TENANT_ID env var)",
+        "full": "Iterate over tenant allowlist, per-tenant KMS keys",
+        "effort": "1 day"
+      },
+      {
+        "component": "Monitoring",
+        "lite": "CloudWatch Logs only",
+        "full": "CloudWatch alarms, dashboard, ops runbook",
+        "effort": "1 day"
+      },
+      {
+        "component": "Infrastructure",
+        "lite": "AWS CLI / Serverless deploy",
+        "full": "CloudFormation Backup Stack (independent from VPC/App stacks)",
+        "effort": "1-2 days"
+      },
+      {
+        "component": "Frontend offline UI",
+        "lite": "Simple error banner",
+        "full": "Degraded-mode UI, cache validity warnings, validUntil countdown",
+        "effort": "1 day"
+      }
+    ],
+    "total_upgrade_effort": "~8-10 additional days to reach full SPEC-000003"
+  },
+
+  "success_metrics": {
+    "availability": "Bundle downloadable via presigned URL within 5s",
+    "freshness": "Bundle no more than 60 minutes stale",
+    "security": "No unauthenticated access (401 on missing JWT)",
+    "data_completeness": "All 82+ asset fields present in bundle JSON",
+    "offline": "localStorage cache serves last-known-good bundle when network unavailable",
+    "delivery_time": "Fully deployed and working in 2-3 days"
+  },
+
+  "known_limitations": {
+    "localStorage_size": "~5-10MB browser limit. Deployments with >5000 assets or many large poly arrays may exceed this. Upgrade to IndexedDB (SPEC-000003) when needed.",
+    "single_tenant": "Builder Lambda processes one tenant per invocation. Multi-tenant iteration deferred to SPEC-000003.",
+    "no_bundle_versioning": "Latest bundle overwrites previous. No rollback until S3 versioning enabled (SPEC-000003).",
+    "no_kms": "Uses SSE-S3 default encryption, not per-tenant KMS. Sufficient for internal/dev use; upgrade for production multi-tenant.",
+    "no_cloudformation": "Infrastructure deployed manually via CLI. Reproducible deployment via CloudFormation deferred to SPEC-000003.",
+    "no_offline_ui": "Simple error banner only. No degraded-mode indicators or cache freshness warnings."
+  }
+}
