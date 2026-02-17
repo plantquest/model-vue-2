@@ -26,5 +26,8 @@
     "url": "https://github.com/plantquest/model-vue-2"
   },
   "author": "PlantQuest",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "provenancecode-cli": "^1.0.0"
+  }
 }

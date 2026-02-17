@@ -1,0 +1,16 @@
+{
+  "schema": "provenancecode.codes@1.0",
+  "version": "1.0",
+  "monorepo": false,
+  "projects": {
+    "MVE2": {
+      "name": "MVE2",
+      "subprojects": {
+        "CORE": {
+          "name": "CORE",
+          "workspace": "."
+        }
+      }
+    }
+  }
+}

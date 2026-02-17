@@ -1,0 +1,9 @@
+{
+  "schema": "provenancecode.risk.v2",
+  "risk_id": "",
+  "title": "",
+  "description": "",
+  "severity": "medium",
+  "status": "open",
+  "linked_decisions": []
+}

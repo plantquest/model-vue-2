@@ -1,0 +1,17 @@
+{
+  "standard": "g2",
+  "version": "2.0",
+  "idScheme": "DEC-{APP}-{AREA}-{SEQ6}",
+  "riskIdScheme": "RSK-{APP}-{AREA}-{SEQ6}",
+  "defaultAppCode": "MVE2",
+  "defaultArea": "CORE",
+  "paths": {
+    "root": "provenance",
+    "decisions": "provenance/decisions",
+    "risks": "provenance/risks",
+    "schemas": "provenance/schemas"
+  },
+  "validation": {
+    "mode": "warn"
+  }
+}
