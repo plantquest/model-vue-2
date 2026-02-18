@@ -1,13 +1,13 @@
 /**
  * useHeadPermissions Composable
- * 
+ *
  * Handles permission checking and visibility logic for BasicHead component.
  * Integrates with Vuex store to determine what actions/buttons should be visible
  * and enabled based on:
  * - User permissions (allow checks)
  * - Component state (show checks)
  * - Feature flags (tool configuration)
- * 
+ *
  * @module composables/useHeadPermissions
  */
 
@@ -36,36 +36,36 @@ export interface UseHeadPermissionsReturn {
 
 /**
  * useHeadPermissions Composable
- * 
+ *
  * Provides reactive permission and visibility checks for BasicHead actions.
  * Uses Vuex state to determine UI element visibility and enabled states.
- * 
+ *
  * @param store - Vuex store instance
  * @returns Permission check functions and computed states
- * 
+ *
  * @example
  * ```typescript
  * const { show, allow, filterDisabled } = useHeadPermissions(store)
- * 
+ *
  * if (show('add')) {
  *   // Render add button
  * }
- * 
+ *
  * if (allow('remove')) {
  *   // User has permission to remove
  * }
  * ```
  */
 export function useHeadPermissions(store: Store<any>): UseHeadPermissionsReturn {
-  
+
   // ============================================================================
   // Permission Checks
   // ============================================================================
-  
+
   /**
    * Check if user has permission to perform an action
    * Returns true if permission is not explicitly set (default allow)
-   * 
+   *
    * @param action - Action name (e.g., 'add', 'remove', 'print')
    * @returns True if action is allowed
    */
@@ -74,22 +74,22 @@ export function useHeadPermissions(store: Store<any>): UseHeadPermissionsReturn 
     // Default to true if permission is not explicitly set
     return allowed == null ? true : allowed
   }
-  
+
   /**
    * Check if action should be shown in UI
    * Combines permission check (allow) with visibility flag (show)
-   * 
+   *
    * @param action - Action name (e.g., 'add', 'remove', 'print')
    * @returns True if action should be visible
    */
   const show = (action: string): boolean => {
     return allow(action) && (store.state.vxg?.cmp?.BasicHead?.show?.[action] || false)
   }
-  
+
   // ============================================================================
   // Computed States
   // ============================================================================
-  
+
   /**
    * Filter button disabled state
    * When true, filter/Go button is disabled
@@ -97,7 +97,7 @@ export function useHeadPermissions(store: Store<any>): UseHeadPermissionsReturn 
   const filterDisabled = computed<boolean>(() => {
     return store.state.trigger?.filter_disabled?.value || false
   })
-  
+
   /**
    * Filter icon visibility
    * Controls whether filter icon is shown
@@ -105,7 +105,7 @@ export function useHeadPermissions(store: Store<any>): UseHeadPermissionsReturn 
   const filterIcon = computed<boolean>(() => {
     return store.state.vxg?.cmp?.BasicHead?.show?.filter || false
   })
-  
+
   /**
    * Bookmark button visibility
    * Controls whether bookmark button is enabled
@@ -113,7 +113,7 @@ export function useHeadPermissions(store: Store<any>): UseHeadPermissionsReturn 
   const bookmarkVisible = computed<boolean>(() => {
     return store.state.trigger?.bookmark?.visible || false
   })
-  
+
   /**
    * Bookmark active state
    * True when tags are currently being shown
@@ -121,7 +121,7 @@ export function useHeadPermissions(store: Store<any>): UseHeadPermissionsReturn 
   const bookmarkActive = computed<boolean>(() => {
     return store.state.trigger?.bookmark?.value || false
   })
-  
+
   /**
    * Print button disabled state
    * Derived from tool configuration
@@ -133,7 +133,7 @@ export function useHeadPermissions(store: Store<any>): UseHeadPermissionsReturn 
     // For now, return false as print is usually always enabled
     return false
   })
-  
+
   return {
     allow,
     show,

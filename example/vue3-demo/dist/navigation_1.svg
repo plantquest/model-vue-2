@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="60" viewBox="0 0 24 60" fill="none">
+  <!-- Navigation/Route icon for dual search mode -->
+  <!-- Start point circle -->
+  <circle cx="12" cy="10" r="4" fill="#4CAF50" stroke="#fff" stroke-width="1.5"/>
+  
+  <!-- Path line -->
+  <line x1="12" y1="14" x2="12" y2="46" stroke="#4CAF50" stroke-width="2" stroke-dasharray="4 2"/>
+  
+  <!-- End point marker -->
+  <path d="M12 50 L12 56 L18 50 Z" fill="#F44336"/>
+  <circle cx="12" cy="50" r="3" fill="#F44336" stroke="#fff" stroke-width="1.5"/>
+</svg>

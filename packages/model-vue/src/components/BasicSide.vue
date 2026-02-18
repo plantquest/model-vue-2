@@ -740,7 +740,7 @@ onMounted(() => {
     if (assets.length != 0) {
       tagItems.value = assets
         .filter((v: any) => v && v.tag)
-        .map(tagAlias)
+        .map(tag_alias)
         .filter((item: any) => item !== null)
       
       if (items2.value.length > 0 && items2.value[0].email) {
@@ -751,7 +751,7 @@ onMounted(() => {
       } else {
         tagItems2.value = items2.value
           .filter((v: any) => v && v.tag)
-          .map(tagAlias)
+          .map(tag_alias)
           .filter((item: any) => item !== null)
       }
       

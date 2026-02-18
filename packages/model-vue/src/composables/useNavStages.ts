@@ -1,13 +1,13 @@
 /**
  * useNavStages Composable
- * 
+ *
  * Manages navigation stage state and route data parsing for BasicNavStages component.
  * Handles multi-level route progression with connector filtering and stage message generation.
  */
 
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
-import type { Stage, RouteMessage, ParsedLine, ParsedNode } from '@/types/components'
+import type { Stage, RouteMessage, ParsedLine } from '@/types/components'
 
 export function useNavStages() {
   const store = useStore()
@@ -27,8 +27,8 @@ export function useNavStages() {
   // ============================================================================
 
   const hasStages = computed(() => routeMassages.value.length > 1)
-  
-  const currentStageData = computed(() => 
+
+  const currentStageData = computed(() =>
     stages.value[activeStage.value] || null
   )
 
@@ -53,7 +53,7 @@ export function useNavStages() {
       try {
         pathArray.value = pathData[0]
         const parsedLines = parseLines(pathArray.value)
-        
+
         // Map the parsedLines array to get map values
         mapValues.value = parsedLines.map(line => line.map)
 
@@ -121,15 +121,15 @@ export function useNavStages() {
   const filterConnectors = (steps: ParsedLine[]): ParsedLine[] => {
     return steps.filter((step, i, arr) => {
       if (step.type !== 'Connector') return true
-      
+
       const prev = arr[i - 1]
       const next = arr[i + 1]
-      
+
       // Keep if previous or next is also a Connector
       if ((prev && prev.type === 'Connector') || (next && next.type === 'Connector')) {
         return true
       }
-      
+
       // Remove if unique Connector
       return false
     })
@@ -143,24 +143,24 @@ export function useNavStages() {
     return new Promise((resolve) => {
       let steps = routeData
       const messages: RouteMessage[] = []
-      
+
       // Offset set to zero
       const offset = 0
-      
+
       for (let i = 0; i < steps.length - offset; i++) {
         if (steps[i].type === 'Connector') {
           // First node type connector (i)
           let msg = 'Follow route to stairs and proceed to '
           let j = i
-          
+
           // Find sequence of connectors
           while (j < steps.length - 1 && steps[j + 1].type === 'Connector') {
             j++
           }
-          
+
           // First node type Standard (j)
           const innerOffset = 0
-          
+
           if (j < steps.length - innerOffset) {
             msg += getMapName(steps[j])
             messages.push({
@@ -168,11 +168,11 @@ export function useNavStages() {
               map: steps[i].map - 1
             })
           }
-          
+
           i = j
         }
       }
-      
+
       // Add final destination message
       if (messages.length > 0) {
         messages.push({
@@ -180,7 +180,7 @@ export function useNavStages() {
           map: steps[steps.length - 1].map - 1
         })
       }
-      
+
       resolve(messages)
     })
   }
@@ -191,15 +191,15 @@ export function useNavStages() {
    */
   const getMapName = (node: ParsedLine): string => {
     const mainAssets = store.state.main_asset
-    
+
     if (!mainAssets || !Array.isArray(mainAssets)) {
       return '@'
     }
 
     // Filter assets for the current map
     const assets = mainAssets.filter(
-      (asset: any) => 
-        !isNaN(parseInt(asset.map)) && 
+      (asset: any) =>
+        !isNaN(parseInt(asset.map)) &&
         parseInt(asset.map) === node.map - 1
     )
 
@@ -213,10 +213,10 @@ export function useNavStages() {
 
     for (const asset of assets) {
       const dist = Math.sqrt(
-        Math.pow(asset.xco - node.x, 2) + 
+        Math.pow(asset.xco - node.x, 2) +
         Math.pow(asset.yco - node.y, 2)
       )
-      
+
       if (dist < mindist) {
         closest = asset
         mindist = dist
@@ -231,12 +231,10 @@ export function useNavStages() {
    * @param index - Stage index (0-based) or map value
    */
   const selectStage = (index: number): void => {
-    console.log(`🔄 useNavStages.selectStage: Setting activeStage from ${activeStage.value} to ${index}`)
     activeStage.value = index
-    
+
     // Update store
     store.commit('setCurrentStage', index + 1)
-    console.log(`✅ useNavStages.selectStage: activeStage is now ${activeStage.value}`)
   }
 
   /**
@@ -267,11 +265,11 @@ export function useNavStages() {
     activeStage,
     routeMassages,
     mapValues,
-    
+
     // Computed
     hasStages,
     currentStageData,
-    
+
     // Methods
     parsePathData,
     parseLine,
