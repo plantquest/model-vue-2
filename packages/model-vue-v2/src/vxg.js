@@ -81,14 +81,22 @@ class Vxg {
 
     // Register components
     Object.entries(components).forEach(([name, component]) => {
-      Vue.component(name, component)
+      if (Vue && 'function' === typeof Vue.component) {
+        Vue.component(name, component)
+      }
       this.cmp[name] = component
     })
 
-    // Use a getter for $vxg
-    Object.defineProperty(Vue.prototype, '$vxg', {
-      get: () => this
-    })
+    // Vue 2 uses Vue.prototype, Vue 3 uses app.config.globalProperties.
+    if (Vue && Vue.prototype) {
+      Object.defineProperty(Vue.prototype, '$vxg', {
+        get: () => this
+      })
+    }
+
+    if (Vue && Vue.config && Vue.config.globalProperties) {
+      Vue.config.globalProperties.$vxg = this
+    }
   }
 }
 

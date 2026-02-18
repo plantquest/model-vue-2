@@ -2,7 +2,7 @@
   <div v-if="routeMassages.length > 1" class="basic-nav-stages"   style="position: absolute;z-index:99; height:300px;left:7px;top: 250px;max-width: calc(100% - 11px);">
       <v-expansion-panels class="mb-12" v-model="isExpanded" >
     <v-expansion-panel v-model="isExpanded" style="background-color:#DCEEEF" >
-      <v-expansion-panel-header 
+      <v-expansion-panel-title 
         style="border-bottom-left-radius: 10px;border-bottom-right-radius: 10px;" 
         @click="toggleIcon" 
       >
@@ -17,9 +17,9 @@
           style="margin-left: -16px; width: 30px;" 
         />
         <h4 style="width: 300px;font-size: 14px;padding-left: 2px;">THIS ROUTE CONTAINS MULTIPLE LEVELS</h4>
-      </v-expansion-panel-header>
+      </v-expansion-panel-title>
       
-      <v-expansion-panel-content style="padding-bottom: 10px;"  >
+      <v-expansion-panel-text style="padding-bottom: 10px;"  >
           <div v-for="(message, index) in routeMsg" :key="index" class="stage" style="background-color:white;"
           @click="selectStage(message.map); activeStage = index; $store.commit('setCurrentStage', index + 1)"
             v-bind:class="{ 'activated': activeStage == index }">
@@ -27,7 +27,7 @@
             <p>{{ message.msg }}</p>
       
           </div>
-      </v-expansion-panel-content>
+      </v-expansion-panel-text>
      
     </v-expansion-panel>
   </v-expansion-panels>
@@ -323,7 +323,12 @@ methods: {
 mounted() {
   console.log('Current Stage on mount:', this.$store.state.currentStage);
  // this.parseLines(this.test); // Call parseLines with the test data
-  this.$root.$on('clear-nav-stages', this.toggleshowNav);
+  if (this.$root && typeof this.$root.$on === 'function') {
+    this.$root.$on('clear-nav-stages', this.toggleshowNav);
+  } else if (typeof window !== 'undefined') {
+    this._clearNavStagesHandler = () => this.toggleshowNav();
+    window.addEventListener('pqs-clear-nav-stages', this._clearNavStagesHandler);
+  }
   
   // Automatically select Stage 1 after the stages are rendered
   // this.$nextTick(() => {
@@ -334,7 +339,19 @@ mounted() {
   // });
 },
 beforeDestroy() {
-  this.$root.$off('clear-nav-stages', this.toggleshowNav);
+  if (this.$root && typeof this.$root.$off === 'function') {
+    this.$root.$off('clear-nav-stages', this.toggleshowNav);
+  }
+  if (typeof window !== 'undefined' && this._clearNavStagesHandler) {
+    window.removeEventListener('pqs-clear-nav-stages', this._clearNavStagesHandler);
+    this._clearNavStagesHandler = null;
+  }
+},
+beforeUnmount() {
+  if (typeof window !== 'undefined' && this._clearNavStagesHandler) {
+    window.removeEventListener('pqs-clear-nav-stages', this._clearNavStagesHandler);
+    this._clearNavStagesHandler = null;
+  }
 },
   computed: {
       // Your computed properties go here

@@ -72,7 +72,7 @@
 
 
         <v-combobox ref="search" class="comboxSearch d-flex justify-space-between" v-model="search"
-          @keydown="changeSearch($event)" @click:clear="changeSearch($event)" @change="handleChangeSearch($event)"
+          @keydown.enter="changeSearch($event)" @keyup="changeSearch($event)" @click:clear="changeSearch($event)" @change="handleChangeSearch($event)"
           :items="tag_items" flat hide-details outlined dense clearable placeholder="" @click:append="filter"
           :filter="customFilter" :prepend-inner-icon="prependIcon" @click="handleClick" @blur="handleBlur">
 
@@ -96,7 +96,7 @@
 
 
         <v-combobox class="comboxSearch2" ref="search2" v-show="showSearch2" v-model="search2"
-          @keydown="changeSearch2($event)" @click:clear="changeSearch2($event)" :items="tag_items2" flat hide-details
+          @keydown.enter="changeSearch2($event)" @keyup="changeSearch2($event)" @click:clear="changeSearch2($event)" :items="tag_items2" flat hide-details
           outlined dense clearable :filter="customFilter">
 
         </v-combobox>
@@ -187,7 +187,7 @@
         <template v-if="menuView.mode === 'standard'">
           <div class="router_items">
             <router-link v-for="item in menu"
-              v-if="allow(item) && item.code !== 'admin' && item.title !== 'Devices' && item.code !== 'devices'"
+              v-if="item && allow(item) && item.code !== 'admin' && item.title !== 'Devices' && item.code !== 'devices'"
               :key="item.code" :to="`/${item.code}`" :class="['vxg-router-link', item.klass]">
               <v-icon v-once>mdi-{{ item.icon }}</v-icon> {{ item.title }}
             </router-link>
@@ -217,7 +217,7 @@
 import Nua from 'nua'
 import { mapState, mapMutations, mapActions } from 'vuex';
 import BasicNavStages from './BasicNavStages.vue';
-import { Gubu, Open, Required, Skip, Value } from 'gubu'
+import { Gubu, Open, Required, Skip } from 'gubu'
 
 
 const SpecShape = Gubu({
@@ -228,11 +228,11 @@ const SpecShape = Gubu({
       spec: Open({}),
     },
 
-    view: Value(Open({
-      mode: String
-    }), Open({}))
+    view: Open({
+      mode: Skip(String)
+    })
   })),
-  logo: String,
+  logo: Skip(String),
 })
 
 function tag_alias(asset) {
@@ -289,7 +289,22 @@ export default {
   },
 
   beforeCreate() {
-    Nua(this.$options.propsData, SpecShape(this.$options.propsData))
+    // Vue 3 does not always expose props via $options.propsData at this stage.
+    // Validate only when props are present to avoid hard-crashing bootstrap.
+    const rawProps =
+      (this.$options && this.$options.propsData) ||
+      (this.$ && this.$.vnode && this.$.vnode.props) ||
+      this.$props ||
+      null
+
+    if (rawProps && rawProps.spec) {
+      // Validate only declared component props; ignore vnode/runtime keys.
+      const propsToValidate = {
+        spec: rawProps.spec,
+        logo: rawProps.logo,
+      }
+      Nua(propsToValidate, SpecShape(propsToValidate))
+    }
   },
 
   created() {
@@ -389,8 +404,16 @@ export default {
     },
 
     '$store.state.trigger.search.a'(term) {
-
-      this.search = term
+      let search_mode = ''
+      // use the js way to get the mode from the url using window.location.search
+      search_mode = new URLSearchParams(window.location.search).get('mode')
+      const routeTerm = (new URLSearchParams(window.location.search).get('term') || '').trim()
+      const normalizedTerm = this.normalizeSearchTerm(term)
+      if (search_mode === 'assetsearch') {
+        this.search = routeTerm || normalizedTerm || ''
+      } else {
+        this.search = term
+      }
       if (typeof term === 'object') {
         term = term.tag
       }
@@ -402,10 +425,6 @@ export default {
         // this.$store.commit('set_path_data', null)
         
       }
-      let search_mode = ''
-     // search_mode = this.$router.query.mode
-      // use the js way to get the mode from the url using window.location.search
-      search_mode = new URLSearchParams(window.location.search).get('mode')
       let asset = new URLSearchParams(window.location.search).get('asset')
       console.log('asset is ', asset)
       
@@ -427,10 +446,28 @@ export default {
       }
       if(search_mode == 'assetsearch'){
         console.log('search_mode is assetsearch')
+        const stableTerm = this.normalizeSearchTerm(term) || (this.search || '').trim()
+        // Ignore mismatched store pushes in assetsearch mode; URL term is source of truth.
+        if (routeTerm && stableTerm && stableTerm !== routeTerm) {
+          return
+        }
+        if (stableTerm && this.$route.query.term !== stableTerm) {
+          this.$router.replace({
+            path: this.$route.path,
+            query: {
+              mode: 'assetsearch',
+              term: stableTerm,
+            }
+          }).catch(err => {
+            if (err.name !== 'NavigationDuplicated') {
+              console.error('Router navigation error:', err)
+            }
+          })
+        }
         
         // Trigger search when in assetsearch mode
-        if(term) {
-          this.performAssetSearch(term);
+        if(stableTerm) {
+          this.performAssetSearch(stableTerm);
         }
       }
     },
@@ -616,14 +653,23 @@ export default {
 
 
     menu() {
-      if (this.menuView.mode !== 'standard') return [];
+      if (!this.menuView || this.menuView.mode !== 'standard') {
+        return []
+      }
 
-      const { items, order } = this.menuView.menu;
-      return order.split(/\s*,\s*/).map(code => ({
-        ...items[code],
-        code,
-        klass: { 'vxg-router-link': true }
-      }));
+      const menuConfig = this.menuView.menu || {}
+      const items = menuConfig.items || {}
+      const order = menuConfig.order || ''
+
+      return order
+        .split(/\s*,\s*/)
+        .map(code => (code || '').trim())
+        .filter(code => !!code && !!items[code])
+        .map(code => ({
+          ...items[code],
+          code,
+          klass: { 'vxg-router-link': true }
+        }))
     },
     filterIcon() {
       return this.$store.state.vxg.cmp.BasicHead.show.filter
@@ -660,6 +706,29 @@ export default {
   },
 
   methods: {
+    normalizeSearchTerm(input) {
+      if (input == null) {
+        return ''
+      }
+      if (typeof input === 'string') {
+        return input
+      }
+      if (typeof input === 'number') {
+        return String(input)
+      }
+      if (typeof input === 'object') {
+        if (typeof input.tag === 'string') {
+          return input.tag
+        }
+        if (typeof input.value === 'string') {
+          return input.value
+        }
+        if (input.target && typeof input.target.value === 'string') {
+          return input.target.value
+        }
+      }
+      return ''
+    },
     ...mapActions(['toggleSideInfoCardVisibility']),
     ...mapMutations(['toggleSearch2', 'toggleExpansion', 'setCurrentStage']),
     toggleSearchMode() {
@@ -747,12 +816,19 @@ export default {
     },
 
     handleChangeSearch(event) {
+      const term = this.normalizeSearchTerm(event)
+      const safeTerm = (term || this.search || '').trim()
       if (!this.showSearch2) {
+        // Vuetify combobox can emit empty change events during internal state sync.
+        // Do not clobber a valid assetsearch query term with empty data.
+        if (!safeTerm && this.$route.query.mode === 'assetsearch' && this.$route.query.term) {
+          return
+        }
         this.$router.push({
           path: this.$route.path,
           query: {
             mode: 'assetsearch',
-            term: event,
+            term: safeTerm,
           }
         })
       } else {
@@ -782,18 +858,37 @@ export default {
       }
 
       setTimeout(async () => { // wait for input
-        let term
-        term = event.target ? event.target.value : null
-        this.$router.push({
-          path: this.$route.path,
-          query: {
-            mode: 'assetsearch',
-            term: event.target?.value,
+        const term = this.normalizeSearchTerm(event)
+        const safeTerm = (term || this.search || '').trim()
+        if (this.showSearch2 || this.$route.query.mode === 'route') {
+          this.search = safeTerm || ''
+          this.$router.replace({
+            path: this.$route.path,
+            query: {
+              mode: 'route',
+              a: safeTerm || '',
+              b: this.search2 || ''
+            }
+          }).catch(err => {
+            if (err.name !== 'NavigationDuplicated') {
+              console.error('Router navigation error:', err);
+            }
+          })
+        } else {
+          if (!safeTerm && this.$route.query.mode === 'assetsearch' && this.$route.query.term) {
+            return
           }
-        })
-        if (term) {
+          this.$router.push({
+            path: this.$route.path,
+            query: {
+              mode: 'assetsearch',
+              term: safeTerm,
+            }
+          })
+        }
+        if (safeTerm) {
           let out = await this.$seneca.post('sys:search, cmd:search',
-            { query: term, params: this.search_config }
+            { query: safeTerm, params: this.search_config }
           )
           // this.tag_items = out.data.hits.map(v => v.id)
           this.tag_items = out.data.hits
@@ -811,8 +906,7 @@ export default {
     },
     changeSearch2(event) {
       setTimeout(async () => { // wait for input
-        let term
-        term = event.target ? event.target.value : null
+        const term = this.normalizeSearchTerm(event)
         if (term) {
           let out = await this.$seneca.post('sys:search, cmd:search',
             { query: term, params: this.search_config }
