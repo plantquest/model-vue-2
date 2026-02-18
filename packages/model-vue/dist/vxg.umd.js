@@ -1,0 +1,2 @@
+(function(n,e){typeof exports=="object"&&typeof module<"u"?e(exports):typeof define=="function"&&define.amd?define(["exports"],e):(n=typeof globalThis<"u"?globalThis:n||self,e(n.Vxg={}))})(this,function(n){"use strict";const e="1.0.0-alpha.1",t={install(i,o={}){console.log("[Vxg] Vue 3 plugin installed - v"+e),i.config.globalProperties.$vxg={version:e,options:o},i.provide("$vxg",{version:e,options:o})}};n.default=t,n.version=e,Object.defineProperties(n,{__esModule:{value:!0},[Symbol.toStringTag]:{value:"Module"}})});
+//# sourceMappingURL=vxg.umd.js.map
