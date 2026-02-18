@@ -10,7 +10,6 @@
     "build:all": "pnpm -r build",
     "test:all": "pnpm -r test",
     "build:v2": "pnpm --filter @plantquest/model-vue-v2 vue-build",
-    "watch:dist:v2": "pnpm --filter @plantquest/model-vue-v2 vue-watch",
     "build:v3": "pnpm --filter @plantquest/model-vue build",
     "dev:v3": "pnpm --filter @plantquest/model-vue dev",
     "preview:v3": "pnpm --filter @plantquest/model-vue preview",

@@ -75,19 +75,18 @@ export interface VxgComponentState {
 /**
  * Vxg Plugin Class
  * Main plugin that gets installed with app.use()
- * Uses type intersection instead of interface extend because Vue's Plugin is a conditional type
  */
-export type VxgPlugin = Plugin & {
+export interface VxgPlugin extends Plugin {
   /**
    * Vue plugin install method
    */
   install(app: App, options?: VxgConfig): void
-
+  
   /**
    * Plugin version
    */
   version: string
-
+  
   /**
    * Plugin configuration
    */
