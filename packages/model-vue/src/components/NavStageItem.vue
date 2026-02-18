@@ -1,6 +1,6 @@
 <template>
-  <div 
-    class="stage" 
+  <div
+    class="stage"
     :class="{ 'stage--active': isActive }"
     :data-active="isActive"
     :data-index="index"
@@ -30,12 +30,7 @@ const emit = defineEmits<{
 }>()
 
 const handleClick = () => {
-  console.log(`🎯 Stage ${props.index + 1} clicked, isActive=${props.isActive}, will become active`)
   emit('select')
-  // Log again after a short delay to see if prop updated
-  setTimeout(() => {
-    console.log(`✨ Stage ${props.index + 1} after click: isActive=${props.isActive}`)
-  }, 200)
 }
 </script>
 
@@ -56,14 +51,14 @@ const handleClick = () => {
   &:hover:not(&--active) {
     opacity: 0.9;
   }
-  
+
   &--active {
     background-color: #C0E28B;
     border-color: rgb(var(--v-theme-pqs-green));
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     opacity: 1;
   }
-  
+
   &__title {
     position: relative;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -74,12 +69,12 @@ const handleClick = () => {
     left: 13px;
     color: rgb(var(--v-theme-on-surface));
   }
-  
+
   &__check {
     color: rgb(var(--v-theme-pqs-green));
     font-weight: bold;
   }
-  
+
   &__message {
     position: relative;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;

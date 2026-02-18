@@ -2,12 +2,13 @@
  * useSide composable - Side drawer state management
  * Handles side drawer visibility and content
  */
+
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 
 /**
  * useSide composable
- * 
+ *
  * Provides side drawer state and methods:
  * - isOpen: reactive boolean for drawer state
  * - content: reactive drawer content
@@ -16,7 +17,7 @@ import { useStore } from 'vuex'
  * - close: method to close drawer
  * - setContent: method to set drawer content
  * - handleResize: method to handle window resize
- * 
+ *
  * @returns Side drawer state and methods
  */
 export function useSide() {
@@ -25,20 +26,25 @@ export function useSide() {
   /**
    * Check if drawer is open
    */
-  const isOpen = computed<boolean>(() => 
+  const isOpen = computed<boolean>(() =>
     store.state.vxg?.cmp?.BasicSide?.show || false
   )
 
   /**
    * Get drawer content
    */
-  const content = computed<any>(() => 
+  const content = computed<any>(() =>
     store.state.vxg?.cmp?.BasicSide?.content || null
   )
 
   /**
+   * Get drawer width
+   */
+  const width = computed(() => store.state.vxg?.cmp?.BasicSide?.width ?? 282)
+
+  /**
    * Toggle drawer open/close
-   * 
+   *
    * @param show - Optional boolean to set specific state
    * @returns Promise that resolves when toggle completes
    */
@@ -52,7 +58,7 @@ export function useSide() {
 
   /**
    * Open drawer
-   * 
+   *
    * @returns Promise that resolves when drawer is opened
    */
   const open = () => {
@@ -64,7 +70,7 @@ export function useSide() {
 
   /**
    * Close drawer
-   * 
+   *
    * @returns Promise that resolves when drawer is closed
    */
   const close = () => {
@@ -76,7 +82,7 @@ export function useSide() {
 
   /**
    * Set drawer content
-   * 
+   *
    * @param newContent - Content to display in drawer
    * @returns Promise that resolves when content is set
    */
@@ -100,6 +106,7 @@ export function useSide() {
   return {
     isOpen,
     content,
+    width,
     toggle,
     open,
     close,
@@ -110,7 +117,7 @@ export function useSide() {
 
 /**
  * useSideSearch composable
- * 
+ *
  * Provides search state and methods for side drawer:
  * - search: reactive search term (primary)
  * - search2: reactive search term (secondary/navigation)
@@ -123,7 +130,7 @@ export function useSide() {
  * - clearFilter: method to clear all filters
  * - reverseInputs: method to swap search inputs
  * - loadAssets: method to load assets
- * 
+ *
  * @returns Search state and methods
  */
 export function useSideSearch() {
@@ -140,7 +147,7 @@ export function useSideSearch() {
   /**
    * Check if navigation search mode is active
    */
-  const showSearch2 = computed<boolean>(() => 
+  const showSearch2 = computed<boolean>(() =>
     store.state.showSearch2 || false
   )
 
@@ -159,13 +166,13 @@ export function useSideSearch() {
     search2.value = ''
     tagItems.value = []
     tagItems2.value = []
-    
+
     store.dispatch('vxg_trigger_clear')
     store.dispatch('setLastTrackedSearch', null)
     store.dispatch('clear_path_data')
     store.commit('clear_path_data')
     store.commit('clearMatchingConnectorData')
-    
+
     if (showSearch2.value) {
       store.commit('toggleSearch2')
     }
@@ -178,15 +185,21 @@ export function useSideSearch() {
     const temp = search.value
     search.value = search2.value
     search2.value = temp
-    
+
     const tempItems = tagItems.value
     tagItems.value = tagItems2.value
     tagItems2.value = tempItems
+
+    const tempData = items.value
+    items.value = items2.value
+    items2.value = tempData
+
+    store.commit('setReverseTriggered', true)
   }
 
   /**
    * Load assets from store
-   * 
+   *
    * @returns Promise that resolves with assets array
    */
   const loadAssets = (): Promise<any[]> => {
@@ -194,7 +207,7 @@ export function useSideSearch() {
       const tool = {
         assets: []
       }
-      
+
       store.dispatch('vxg_get_assets', tool)
         .then(() => {
           items.value = tool.assets
@@ -213,6 +226,26 @@ export function useSideSearch() {
     store.state.showExpansion = !store.state.showExpansion
   }
 
+  /**
+   * Perform asset search via Seneca
+   */
+  const searchAssets = async (term: string, searchConfig: any) => {
+    const seneca = (window as any).$seneca
+    if (!seneca) return []
+
+    try {
+      const out = await seneca.post('sys:search,cmd:search', {
+        query: term,
+        params: searchConfig
+      })
+
+      return out.data?.hits || []
+    } catch (error) {
+      console.error('Error searching assets:', error)
+      return []
+    }
+  }
+
   return {
     search,
     search2,
@@ -225,6 +258,7 @@ export function useSideSearch() {
     toggleExpansion,
     clearFilter,
     reverseInputs,
-    loadAssets
+    loadAssets,
+    searchAssets
   }
 }

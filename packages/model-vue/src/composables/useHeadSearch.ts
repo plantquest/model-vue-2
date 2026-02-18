@@ -1,6 +1,6 @@
 /**
  * useHeadSearch Composable
- * 
+ *
  * Handles all search functionality for BasicHead component including:
  * - Asset loading with polling
  * - MiniSearch integration via Seneca
@@ -8,7 +8,7 @@
  * - Autosuggest functionality
  * - Vuex state synchronization
  * - URL-based search navigation
- * 
+ *
  * @module composables/useHeadSearch
  */
 
@@ -77,7 +77,7 @@ function tagAlias(asset: Asset | null | undefined): string | null {
   if (!asset || !asset.tag) {
     return null
   }
-  
+
   if (asset.custom12 != null) {
     return `${asset.tag}(${asset.custom12})`
   }
@@ -86,7 +86,7 @@ function tagAlias(asset: Asset | null | undefined): string | null {
 
 /**
  * useHeadSearch Composable
- * 
+ *
  * @param store - Vuex store instance
  * @param router - Vue Router instance
  * @param route - Current route location
@@ -101,30 +101,30 @@ export function useHeadSearch(
   seneca: any,
   model: any
 ): UseHeadSearchReturn {
-  
+
   // ============================================================================
   // State
   // ============================================================================
-  
+
   const search = ref<string>('')
   const items = ref<Asset[]>([])
   const tagItems = ref<string[]>([])
-  
+
   let loadAssetsInterval: ReturnType<typeof setInterval> | null = null
   let searchDebounceTimeout: ReturnType<typeof setTimeout> | null = null
-  
+
   // ============================================================================
   // Computed
   // ============================================================================
-  
+
   const searchConfig = computed<SearchConfig>(() => {
     return model?.main?.ux?.custom?.search_config || {}
   })
-  
+
   // ============================================================================
   // MiniSearch Integration
   // ============================================================================
-  
+
   /**
    * Setup MiniSearch by adding all assets to the search index
    * Uses Seneca message pattern: sys:search, cmd:add
@@ -133,7 +133,7 @@ export function useHeadSearch(
     const addPromises = assetList.map(item => {
       return seneca.post('sys:search, cmd:add', { doc: item })
     })
-    
+
     return Promise.all(addPromises)
       .then(() => {
         console.log(`[useHeadSearch] MiniSearch initialized with ${assetList.length} assets`)
@@ -143,7 +143,7 @@ export function useHeadSearch(
         throw error
       })
   }
-  
+
   /**
    * Perform search query via MiniSearch
    * Uses Seneca message pattern: sys:search, cmd:search
@@ -157,12 +157,12 @@ export function useHeadSearch(
         })
           .then((out: any) => {
             const hits: SearchHit[] = out?.data?.hits || []
-            
+
             // Map hits to tag alias format and filter nulls
             tagItems.value = hits
               .map((hit: SearchHit) => tagAlias(hit.doc))
               .filter((item): item is string => item !== null)
-            
+
             console.log(`[useHeadSearch] Search results: ${tagItems.value.length} matches for "${term}"`)
             resolve()
           })
@@ -181,29 +181,29 @@ export function useHeadSearch(
       }
     })
   }
-  
+
   // ============================================================================
   // Asset Loading
   // ============================================================================
-  
+
   /**
    * Initialize asset loading with polling
    * Polls every 111ms until assets are loaded, then sets up MiniSearch
    */
   const initializeAssetLoading = (): void => {
     const tool: any = {}
-    
+
     loadAssetsInterval = setInterval(() => {
       store.dispatch('vxg_get_assets', tool)
         .then(() => {
           items.value = tool.assets || []
-          
+
           if (items.value.length !== 0) {
             // Filter and map to tag alias format
             tagItems.value = items.value
               .map(tagAlias)
               .filter((item): item is string => item !== null)
-            
+
             // Setup MiniSearch with loaded assets
             setupMiniSearch(items.value)
               .then(() => {
@@ -223,24 +223,24 @@ export function useHeadSearch(
         })
     }, 111)
   }
-  
+
   // ============================================================================
   // Event Handlers
   // ============================================================================
-  
+
   /**
    * Custom filter for v-combobox autosuggest
    * Performs case-insensitive substring matching
    */
   const customFilter = (item: string, queryText: string, itemText: string): boolean => {
     if (!queryText) return true
-    
+
     const searchText = queryText.toLowerCase()
     const itemContent = (item || '').toLowerCase()
-    
+
     return itemContent.includes(searchText)
   }
-  
+
   /**
    * Handle search input change with debouncing and state updates
    * Updates Vuex state and triggers URL navigation
@@ -250,25 +250,25 @@ export function useHeadSearch(
     if (searchDebounceTimeout) {
       clearTimeout(searchDebounceTimeout)
     }
-    
+
     // Debounce search input (11ms)
     searchDebounceTimeout = setTimeout(() => {
       const target = event.target as HTMLInputElement
       const term = target?.value || null
-      
+
       console.log('[useHeadSearch] Search term:', term)
-      
+
       // Update BOTH Vuex properties for component integration
       // Note: Direct state mutation is used here for performance (existing pattern)
       store.state.trigger.search.term = term || ''  // For BasicLed data table
       store.state.trigger.search.a = term || ''     // For BasicSide search
-      
+
       // Update autosuggest items
       performSearch(term || '')
         .then(() => {
           // Handle URL navigation if not in specific search modes
           const currentMode = route.query.mode as string
-          
+
           // Skip URL navigation if other components are handling search
           if (
             currentMode === 'assetsearch' ||
@@ -277,7 +277,7 @@ export function useHeadSearch(
           ) {
             return
           }
-          
+
           // Use URL-based search for consistency
           if (term) {
             router.push({
@@ -308,23 +308,23 @@ export function useHeadSearch(
         })
     }, 11)
   }
-  
+
   /**
    * Handle search selection from autosuggest dropdown
    * Syncs selected value to Vuex state
    */
   const handleSearchSelect = (value: string): void => {
     console.log('[useHeadSearch] Search selected:', value)
-    
+
     // Update both Vuex search properties
     store.state.trigger.search.term = value || ''
     store.state.trigger.search.a = value || ''
   }
-  
+
   // ============================================================================
   // Watchers
   // ============================================================================
-  
+
   /**
    * Watch for external search term changes (from other components)
    * Resets tag items when search is cleared externally
@@ -340,11 +340,11 @@ export function useHeadSearch(
       }
     }
   )
-  
+
   // ============================================================================
   // Cleanup
   // ============================================================================
-  
+
   /**
    * Cleanup function to clear intervals and timeouts
    */
@@ -353,24 +353,24 @@ export function useHeadSearch(
       clearInterval(loadAssetsInterval)
       loadAssetsInterval = null
     }
-    
+
     if (searchDebounceTimeout) {
       clearTimeout(searchDebounceTimeout)
       searchDebounceTimeout = null
     }
   }
-  
+
   /**
    * Auto-cleanup on component unmount
    */
   onUnmounted(() => {
     cleanup()
   })
-  
+
   // ============================================================================
   // Return
   // ============================================================================
-  
+
   return {
     search,
     tagItems,

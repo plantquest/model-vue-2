@@ -92,12 +92,12 @@ const isLoading = ref(false)
 /**
  * Get the item from param
  */
-const item = computed(() => props.param.item || {})
+const item = computed(() => props.param?.item || {})
 
 /**
  * Get custom field configuration
  */
-const custom = computed(() => props.field.custom || {})
+const custom = computed(() => props.field?.custom || {})
 
 /**
  * Get allow function from custom config
@@ -113,9 +113,7 @@ const currentUser = computed(() => store?.state?.current_user || null)
  * Create field filter function
  */
 const makeFieldFilter = (field: Field) => {
-  const filter =
-    custom.value.field?.[field.name]?.filter
-
+  const filter = custom.value.field?.[field.name]?.filter
   return filter || (() => true)
 }
 
@@ -124,6 +122,8 @@ const makeFieldFilter = (field: Field) => {
  */
 const pickItems = computed((): SelectItem[] => {
   const field = props.field
+  if (!field) return []
+
   const kinds = field.kind ? Object.entries(field.kind) : []
   
   let picks = kinds
@@ -159,14 +159,14 @@ const filteredItems = computed(() => pickItems.value)
 /**
  * Computed label from field or prop
  */
-const label = computed(() => props.label || props.field.title || '')
+const label = computed(() => props.label || props.field?.title || '')
 
 /**
  * Computed disabled state
  */
 const disabled = computed(() => {
-  return props.disabled || 
-         props.field.readonly || 
+  return props.disabled ||
+         props.field?.readonly ||
          !allowFunc.value('edit')
 })
 
