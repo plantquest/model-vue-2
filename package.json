@@ -1,75 +1,28 @@
 {
-  "name": "@plantquest/model-vue",
-   "version": "0.18.240-demo-dev",
-  "main": "./dist/Vxg.umd.js",
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "vue-build": "vue-cli-service build --target lib --name Vxg --mode production ./src/vxg.js",
-    "vue-watch": "vue-cli-service build --target lib --name Vxg ./src/vxg.js --watch --report",
-    "lint": "vue-cli-service lint",
-    "test-off": "npm run test-lab-lint && npm run test-mocha",
-    "test": "npm run test-lab-lint",
-    "test-mocha": "mocha-webpack --interactive false --webpack-config test/test.webpack.config.js --require test/setup.js test/**/*.spec.js",
-    "test-lab": "lab -v -P test -t 0 -r console -o stdout -r html -o test/coverage.html",
-    "test-lab-lint": "lab -v -P test -t 0 -L -r console -o stdout -r html -o test/coverage.html",
-    "coveralls": "lab -s -P test -r lcov | coveralls",
-    "coverage": "lab -v -P test -r html > coverage.html",
-    "prettier": "prettier --write --no-semi --single-quote *.js src/**/*.js test/*.js",
-    "clean": "rimraf node_modules yarn.lock package-lock.json",
-    "reset": "npm run clean && npm i && npm test",
-    "repo-check": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && [[ '' == `git tag --list v${REPO_VERSION}` ]]",
-    "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
-    "repo-publish": "npm run repo-check && npm run clean && npm i --registry https://registry.npmjs.org && npm run prettier && npm run vue-build  && npm run repo-tag && npm publish --registry https://registry.npmjs.org",
-    "repo-publish-quick": "npm run repo-check && npm run prettier && npm run vue-build && npm run repo-tag && npm publish --registry https://registry.npmjs.org --access=public"
-  },
-  "files": [
-    "dist/*",
-    "src/*",
-    "public/*",
-    "*.json",
-    "*.js"
+  "name": "@plantquest/model-vue-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for PlantQuest Model Vue - Vue 2 & Vue 3 versions",
+  "workspaces": [
+    "packages/*"
   ],
-  "devDependencies": {
-    "@hapi/code": "8.0.3",
-    "@hapi/eslint-plugin": "6.0.0",
-    "@hapi/joi": "17.1.1",
-    "@hapi/lab": "24.3.2",
-    "@jsonic/jsonic-next": "2.4.3",
-    "@seneca/search-mini": "0.1.2",
-    "@vue/cli-plugin-babel": "4.5.13",
-    "@vue/cli-plugin-eslint": "4.5.13",
-    "@vue/cli-plugin-vuex": "4.5.13",
-    "@vue/cli-service": "4.5.13",
-    "@vue/eslint-config-prettier": "6.0.0",
-    "@vue/test-utils": "1.2.2",
-    "babel-eslint": "10.1.0",
-    "core-js": "3",
-    "deepmerge": "4.2.2",
-    "eslint": "6",
-    "eslint-plugin-prettier": "3",
-    "eslint-plugin-vue": "7.18.0",
-    "expect": "27.2.4",
-    "gubu": "4.0.0",
-    "jsdom": "17.0.0",
-    "jsdom-global": "3.0.2",
-    "mocha": "4",
-    "mocha-webpack": "2.0.0-beta.0",
-    "nua": "2.0.1",
-    "patrun": "7.2.5",
-    "prettier": "2.7.1",
-    "rimraf": "^5.0.0",
-    "sass": "1.34.0",
-    "sass-loader": "10",
-    "vue": "2.6.12",
-    "vue-cli-plugin-vuetify": "2.4.0",
-    "vue-router": "3.5.2",
-    "vue-template-compiler": "2.6.12",
-    "vuetify": "2.5.1",
-    "vuetify-loader": "1.7.2",
-    "vuex": "3.4.0",
-    "webpack-node-externals": "3.0.0"
+  "scripts": {
+    "build:all": "pnpm -r build",
+    "test:all": "pnpm -r test",
+    "build:v2": "pnpm --filter @plantquest/model-vue-v2 vue-build",
+    "build:v3": "pnpm --filter @plantquest/model-vue build",
+    "dev:v3": "pnpm --filter @plantquest/model-vue dev",
+    "preview:v3": "pnpm --filter @plantquest/model-vue preview",
+    "lint:v3": "pnpm --filter @plantquest/model-vue lint"
   },
-  "dependencies": {
-    "moment": "^2.30.1"
-  }
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plantquest/model-vue-2"
+  },
+  "author": "PlantQuest",
+  "license": "MIT"
 }
