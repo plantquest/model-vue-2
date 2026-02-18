@@ -100,6 +100,7 @@ export interface BasicNavStagesProps {
   // Currently no props, but reserve for future
 }
 
+
 export interface FooterLink {
   id: string
   label: string
@@ -215,11 +216,13 @@ export interface BasicSideProps {
   logo?: string
 }
 
+
 export interface BasicFootProps {
   links?: FooterLink[]
   copyright?: string
   version?: string
 }
+
 
 // ============================================================================
 // Event Types
