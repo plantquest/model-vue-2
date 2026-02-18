@@ -1,0 +1,96 @@
+{
+  "schema": "provenancecode.risk@1.0",
+  "ra_id": "RA-000004",
+  "repo": {
+    "org": "plantquest",
+    "name": "model-vue-2"
+  },
+  "ref": "pc://plantquest/model-vue-2/risk/RA-000004",
+  "title": "Backup Delivery Plane Implementation and Operational Risks",
+  "status": "proposed",
+  "created_at": "2026-02-12T00:00:00Z",
+  "updated_at": "2026-02-12T00:00:00Z",
+  "risk_statement": "Implementing a new Backup Delivery Plane introduces risks across five areas: (1) bundle staleness - cached data may be up to 60 minutes old and indefinitely stale during extended outages; (2) encryption key management complexity - per-tenant KMS keys require rotation, access control, and disaster recovery procedures; (3) cross-tenant data exposure if JWT tenant claims are not properly validated against an independent allowlist; (4) greenfield frontend caching with no existing offline infrastructure (no service workers, no IndexedDB usage) creating an untested code path on tablets; (5) new infrastructure surface area (3 Lambdas, S3, KMS, API Gateway) that must be maintained independently from the main application stack.",
+  "severity": "medium",
+  "likelihood": "medium",
+  "scope": {
+    "paths": [
+      "infra/cloudformation/backup-stack.yaml",
+      "infra/lambda/**",
+      "src/services/BackupService.js",
+      "src/services/IndexedDBCache.js",
+      "packages/model-vue/src/composables/useBackup.ts"
+    ],
+    "components": [
+      "Bundle Builder Lambda",
+      "Signer Lambda",
+      "JWT Authorizer Lambda",
+      "S3 backup bucket",
+      "KMS encryption keys",
+      "API Gateway backup endpoint",
+      "Frontend BackupService",
+      "Frontend IndexedDB cache layer",
+      "EventBridge cron trigger"
+    ]
+  },
+  "acceptance": {
+    "accepted_by": null,
+    "accepted_at": null,
+    "expires_at": "2026-12-31T00:00:00Z",
+    "reason": "The business risk of total asset data unavailability during Seneca outages outweighs the implementation risks of the Backup Delivery Plane. Field operations depend on asset access; a server outage currently means complete loss of functionality for tablet users. The identified risks are manageable through the mitigations below. This risk acceptance should be reviewed after the first production deployment and again at expiry."
+  },
+  "mitigations": [
+    {
+      "type": "bundle-staleness",
+      "detail": "Include validUntil timestamp and sequenceNum in every bundle. Client shows degraded-mode warning when serving expired cache. Builder Lambda runs every 60 minutes with CloudWatch alarm on consecutive failures. SNS notification to ops team on 3+ consecutive build failures."
+    },
+    {
+      "type": "encryption-key-management",
+      "detail": "Use AWS KMS with automatic annual key rotation enabled. Per-tenant Customer Managed Keys (CMKs) with strict IAM policies. Key deletion has 30-day waiting period. Document key rotation runbook. Test key rotation in staging before production."
+    },
+    {
+      "type": "cross-tenant-isolation",
+      "detail": "Never trust JWT tenant claims alone. Validate (userId, tenantId) pairing against an independent allowlist in DynamoDB or S3 config file. Signer Lambda IAM policy scoped to tenant/{tenantId}/* prefix only. Penetration test cross-tenant access before production launch. Quarterly security review of tenant isolation."
+    },
+    {
+      "type": "frontend-caching-greenfield",
+      "detail": "Use battle-tested Dexie.js library for IndexedDB (not raw API). Write comprehensive integration tests for cache read/write/eviction/corruption scenarios. Test on target tablet hardware (iPad, Android tablets) before production. Implement cache corruption detection and automatic rebuild."
+    },
+    {
+      "type": "infrastructure-surface-area",
+      "detail": "Separate CloudFormation Backup Stack for independent deployment and rollback. CloudWatch dashboards for all Lambda invocations, errors, and latency. Alarms on builder failure rate, signer error rate, and S3 access denied events. Monthly infrastructure review during first 3 months post-launch."
+    },
+    {
+      "type": "lambda-cold-starts",
+      "detail": "Accept cold start latency (1-3s) for Signer Lambda since backup download is a background operation. Monitor p99 latency. If latency becomes problematic, add provisioned concurrency (1-2 instances) at ~$3/month additional cost."
+    },
+    {
+      "type": "bundle-size",
+      "detail": "Monitor bundle size per tenant. Set CloudWatch alarm if bundle exceeds 50MB. For large tenants, consider delta/incremental bundles in future iteration. Presigned URL expiry (300s) is sufficient for 50MB on 3G connection (~1.3 Mbps)."
+    },
+    {
+      "type": "rollback",
+      "detail": "Bundle versions are never overwritten. latest.json can be manually reverted to point to any previous bundle. S3 versioning provides additional safety net. Frontend can pin to a specific sequenceNum if needed. CloudFormation stack can be deleted entirely without affecting main application."
+    },
+    {
+      "type": "testing",
+      "detail": "Integration tests covering: auth flow end-to-end, cross-tenant access denial, bundle download and verification, offline fallback from cache, cache expiry warning, bundle corruption recovery. Load test with simulated tenant count before production."
+    }
+  ],
+  "links": {
+    "decisions": [
+      "DEC-000019",
+      "DEC-000005",
+      "DEC-000007",
+      "DEC-000013",
+      "DEC-000014",
+      "DEC-000015"
+    ],
+    "specs": [
+      "SPEC-000003"
+    ],
+    "mistakes": [],
+    "issues": [],
+    "pull_requests": []
+  }
+}

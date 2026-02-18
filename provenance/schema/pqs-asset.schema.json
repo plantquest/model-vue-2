@@ -1,0 +1,313 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pqs-asset.schema.json",
+  "title": "PQS Asset Entity Schema",
+  "description": "Full field schema for PlantQuest pqs/asset entities. Covers all output fields including Room/Area polygon geometry. Decision: DEC-000007, Spec: SPEC-000003.",
+  "type": "object",
+  "required": ["entity$", "id", "tag", "xco", "yco", "atype", "map", "room", "building", "level"],
+  "properties": {
+    "entity$": {
+      "type": "string",
+      "const": "-/pqs/asset",
+      "description": "Seneca entity identifier - always '-/pqs/asset'"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$",
+      "description": "UUID identifier"
+    },
+    "tag": {
+      "type": "string",
+      "description": "Primary asset tag/name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Asset description"
+    },
+
+    "xco": {
+      "type": ["string", "number"],
+      "description": "X pixel coordinate on map"
+    },
+    "yco": {
+      "type": ["string", "number"],
+      "description": "Y pixel coordinate on map"
+    },
+    "zco": {
+      "type": ["string", "number", "null"],
+      "description": "Z coordinate (null for 2D maps)"
+    },
+    "map": {
+      "type": "string",
+      "description": "Map/level index ('1', '2', etc.)"
+    },
+    "floorz": {
+      "type": "string",
+      "description": "Floor Z-reference"
+    },
+
+    "atype": {
+      "type": "string",
+      "description": "Asset type (e.g. 'Room/Area', 'Valve', 'Breakglass Unit')"
+    },
+    "gt2m": {
+      "type": "string",
+      "description": "Greater than 2m flag"
+    },
+    "gt4m": {
+      "type": "string",
+      "description": "Greater than 4m flag"
+    },
+    "anodedep": {
+      "type": "string",
+      "description": "A-node dependency"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Asset icon identifier"
+    },
+
+    "room": {
+      "type": "string",
+      "description": "Room/area name"
+    },
+    "loc": {
+      "type": "string",
+      "description": "Location reference"
+    },
+    "building": {
+      "type": "string",
+      "description": "Building name"
+    },
+    "level": {
+      "type": "string",
+      "description": "Level/floor name"
+    },
+
+    "filtertop": {
+      "type": "string",
+      "description": "Top-level filter category"
+    },
+    "filterside": {
+      "type": "string",
+      "description": "Side filter category"
+    },
+    "filtersubside": {
+      "type": "string",
+      "description": "Sub-side filter"
+    },
+    "filtersubside2": {
+      "type": "string",
+      "description": "Second sub-side filter"
+    },
+
+    "dicipline1": {
+      "type": "string",
+      "description": "Primary discipline"
+    },
+    "dicipline2": {
+      "type": "string",
+      "description": "Secondary discipline"
+    },
+    "dicipline3": {
+      "type": "string",
+      "description": "Tertiary discipline"
+    },
+
+    "agroupname": {
+      "type": "string",
+      "description": "Asset group name"
+    },
+
+    "dept1": { "type": "string", "description": "Department field 1" },
+    "dept2": { "type": "string", "description": "Department field 2" },
+    "dept3": { "type": "string", "description": "Department field 3" },
+    "dept4": { "type": "string", "description": "Department field 4" },
+    "dept5": { "type": "string", "description": "Department field 5" },
+    "dept6": { "type": "string", "description": "Department field 6" },
+    "dept7": { "type": "string", "description": "Department field 7" },
+    "dept8": { "type": "string", "description": "Department field 8" },
+    "dept9": { "type": "string", "description": "Department field 9" },
+    "dept10": { "type": "string", "description": "Department field 10" },
+
+    "custom1": { "type": "string", "description": "Custom field 1" },
+    "custom2": { "type": "string", "description": "Custom field 2" },
+    "custom3": { "type": "string", "description": "Custom field 3" },
+    "custom4": { "type": "string", "description": "Custom field 4" },
+    "custom5": { "type": "string", "description": "Custom field 5" },
+    "custom6": { "type": "string", "description": "Custom field 6" },
+    "custom7": { "type": "string", "description": "Custom field 7" },
+    "custom8": { "type": "string", "description": "Custom field 8" },
+    "custom9": { "type": "string", "description": "Custom field 9" },
+    "custom10": { "type": "string", "description": "Custom field 10" },
+    "custom11": { "type": "string", "description": "Custom field 11" },
+    "custom12": { "type": ["string", "null"], "description": "Custom field 12 - used as tag alias in search/display" },
+    "custom13": { "type": "string", "description": "Custom field 13" },
+    "custom14": { "type": "string", "description": "Custom field 14" },
+    "custom15": { "type": "string", "description": "Custom field 15" },
+    "custom16": { "type": "string", "description": "Custom field 16" },
+    "custom17": { "type": "string", "description": "Custom field 17" },
+    "custom18": { "type": "string", "description": "Custom field 18" },
+    "custom19": { "type": "string", "description": "Custom field 19" },
+    "custom20": { "type": "string", "description": "Custom field 20" },
+    "custom21": { "type": "string", "description": "Custom field 21" },
+    "custom22": { "type": "string", "description": "Custom field 22" },
+    "custom23": { "type": "string", "description": "Custom field 23" },
+    "custom24": { "type": "string", "description": "Custom field 24" },
+    "custom25": { "type": "string", "description": "Custom field 25" },
+    "custom26": { "type": "string", "description": "Custom field 26" },
+    "custom27": { "type": "string", "description": "Custom field 27" },
+    "custom28": { "type": "string", "description": "Custom field 28" },
+    "custom29": { "type": "string", "description": "Custom field 29" },
+    "custom30": { "type": "string", "description": "Custom field 30" },
+    "custom31": { "type": "string", "description": "Custom field 31" },
+    "custom32": { "type": "string", "description": "Custom field 32" },
+
+    "data1": { "type": "string", "description": "Data field 1" },
+    "data2": { "type": "string", "description": "Data field 2" },
+    "data3": { "type": "string", "description": "Data field 3" },
+    "data4": { "type": "string", "description": "Data field 4" },
+    "data5": { "type": "string", "description": "Data field 5" },
+    "data6": { "type": "string", "description": "Data field 6" },
+    "data7": { "type": "string", "description": "Data field 7" },
+    "data8": { "type": "string", "description": "Data field 8" },
+    "data9": { "type": "string", "description": "Data field 9" },
+    "data10": { "type": "string", "description": "Data field 10" },
+    "data11": { "type": "string", "description": "Data field 11" },
+    "data12": { "type": "string", "description": "Data field 12" },
+    "data13": { "type": "string", "description": "Data field 13" },
+    "data14": { "type": "string", "description": "Data field 14" },
+    "data15": { "type": "string", "description": "Data field 15" },
+    "data16": { "type": "string", "description": "Data field 16" },
+    "data17": { "type": "string", "description": "Data field 17" },
+    "data18": { "type": "string", "description": "Data field 18" },
+    "data19": { "type": "string", "description": "Data field 19" },
+    "data20": { "type": "string", "description": "Data field 20" },
+
+    "line": {
+      "type": "string",
+      "description": "Line reference"
+    },
+    "lineno": {
+      "type": "string",
+      "description": "Line number"
+    },
+    "pidno": {
+      "type": "string",
+      "description": "P&ID number"
+    },
+    "preceededby": {
+      "type": "string",
+      "description": "Preceded-by reference"
+    },
+    "followeby": {
+      "type": "string",
+      "description": "Followed-by reference"
+    },
+
+    "poly": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": { "type": "number" },
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "description": "Polygon coordinates for Room/Area asset types - array of [x, y] coordinate pairs"
+    }
+  },
+  "additionalProperties": true,
+
+  "examples": [
+    {
+      "_comment": "Standard point asset (e.g. Valve, Breakglass Unit)",
+      "entity$": "-/pqs/asset",
+      "id": "5EB693A7-CB5B-4DC4-B1C8-F051EBCFE895",
+      "tag": "P6L5M04",
+      "description": "Breakglass unit near MCC room",
+      "xco": "6040",
+      "yco": "5157",
+      "zco": "",
+      "map": "1",
+      "floorz": "",
+      "atype": "Breakglass Unit",
+      "gt2m": "",
+      "gt4m": "",
+      "anodedep": "",
+      "room": "ELEC/ MCC W01.62",
+      "loc": "",
+      "building": "Warehouse",
+      "level": "Level 1",
+      "icon": "",
+      "filtertop": "Safety",
+      "filterside": "Fire",
+      "filtersubside": "",
+      "filtersubside2": "",
+      "dicipline1": "Electrical",
+      "dicipline2": "",
+      "dicipline3": "",
+      "agroupname": "",
+      "dept1": "", "dept2": "", "dept3": "", "dept4": "", "dept5": "",
+      "dept6": "", "dept7": "", "dept8": "", "dept9": "", "dept10": "",
+      "custom1": "", "custom2": "", "custom3": "", "custom4": "", "custom5": "",
+      "custom6": "", "custom7": "", "custom8": "", "custom9": "", "custom10": "",
+      "custom11": "", "custom12": "", "custom13": "", "custom14": "", "custom15": "",
+      "custom16": "", "custom17": "", "custom18": "", "custom19": "GPSG-CBIL-C-FA-C01W002",
+      "custom20": "", "custom21": "", "custom22": "", "custom23": "", "custom24": "",
+      "custom25": "", "custom26": "", "custom27": "", "custom28": "", "custom29": "",
+      "custom30": "", "custom31": "", "custom32": "",
+      "data1": "", "data2": "", "data3": "", "data4": "", "data5": "",
+      "data6": "", "data7": "", "data8": "", "data9": "", "data10": "",
+      "data11": "", "data12": "", "data13": "", "data14": "", "data15": "",
+      "data16": "", "data17": "", "data18": "", "data19": "", "data20": "",
+      "line": "", "lineno": "", "pidno": "", "preceededby": "", "followeby": ""
+    },
+    {
+      "_comment": "Room/Area asset with polygon geometry",
+      "entity$": "-/pqs/asset",
+      "id": "67ECE5AA-31A4-46D7-A986-1A8001B9204A",
+      "tag": "PDMS STORE ROOM A03.31",
+      "description": "",
+      "xco": "7851",
+      "yco": "4323",
+      "zco": "",
+      "map": "3",
+      "floorz": "",
+      "atype": "Room/Area",
+      "gt2m": "",
+      "gt4m": "",
+      "anodedep": "",
+      "room": "PDMS STORE ROOM A03.31",
+      "loc": "",
+      "building": "Lab Admin",
+      "level": "Level 3",
+      "icon": "",
+      "filtertop": "",
+      "filterside": "",
+      "filtersubside": "",
+      "filtersubside2": "",
+      "dicipline1": "",
+      "dicipline2": "",
+      "dicipline3": "",
+      "agroupname": "",
+      "dept1": "", "dept2": "", "dept3": "", "dept4": "", "dept5": "",
+      "dept6": "", "dept7": "", "dept8": "", "dept9": "", "dept10": "",
+      "custom1": "", "custom2": "", "custom3": "", "custom4": "", "custom5": "",
+      "custom6": "", "custom7": "", "custom8": "", "custom9": "", "custom10": "",
+      "custom11": "", "custom12": "", "custom13": "", "custom14": "", "custom15": "",
+      "custom16": "", "custom17": "", "custom18": "", "custom19": "",
+      "custom20": "", "custom21": "", "custom22": "", "custom23": "", "custom24": "",
+      "custom25": "", "custom26": "", "custom27": "", "custom28": "", "custom29": "",
+      "custom30": "", "custom31": "", "custom32": "",
+      "data1": "", "data2": "", "data3": "", "data4": "", "data5": "",
+      "data6": "", "data7": "", "data8": "", "data9": "", "data10": "",
+      "data11": "", "data12": "", "data13": "", "data14": "", "data15": "",
+      "data16": "", "data17": "", "data18": "", "data19": "", "data20": "",
+      "line": "", "lineno": "", "pidno": "", "preceededby": "", "followeby": "",
+      "poly": [
+        [3584, 7920], [3621, 7920], [3621, 7877], [3668, 7877],
+        [3668, 7828], [3590, 7828], [3590, 7866], [3584, 7866]
+      ]
+    }
+  ]
+}

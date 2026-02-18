@@ -1,0 +1,12 @@
+{
+  "schema": "https://provenancecode.org/schemas/decision.g2.schema.json",
+  "decision_id": "DEC-MVE2-CORE-000001",
+  "title": "Updated to ProvenanceCode V2 and added the CLI",
+  "status": "draft",
+  "context": "Added via journal",
+  "decision": "Updated to ProvenanceCode V2 and added the CLI",
+  "date_created": "2026-02-17T08:22:47.927Z",
+  "tags": [
+    "journal"
+  ]
+}
