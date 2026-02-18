@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils'
 import Vue from 'vue'
 
-import def from '../src/components/BasicLed.vue'
+import def from '../src/components/BasicDataTable.vue'
 
-describe(def.name, () => {
+describe('BasicDataTable', () => {
   it('happy', async () => {
     var props = {}
 
