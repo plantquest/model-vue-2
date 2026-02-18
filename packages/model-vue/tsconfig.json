@@ -1,27 +1,40 @@
 {
   "compilerOptions": {
+    // Target modern JavaScript
     "target": "ES2020",
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    
+    // Module resolution
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    
+    // Emit options
     "declaration": true,
     "declarationDir": "./dist/types",
     "emitDeclarationOnly": true,
     "sourceMap": true,
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    
+    // Type checking
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": false,
+    "noImplicitReturns": true,
+    
+    // Vue specific
     "jsx": "preserve",
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
+    
+    // Other options
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    
+    // Path mapping
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

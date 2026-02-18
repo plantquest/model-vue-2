@@ -1,56 +1,153 @@
 /**
  * Component Prop Types
+ * TypeScript definitions for component props
  */
 
-export interface FooterLink {
-  id: string
-  label: string
-  route?: string
-  href?: string
-}
-
+/**
+ * BasicHead component props
+ */
 export interface BasicHeadProps {
+  /**
+   * Logo image URL
+   */
   logo?: string
+  
+  /**
+   * Application title
+   */
+  title?: string
 }
 
+/**
+ * BasicSide component props
+ */
 export interface BasicSideProps {
-  spec: any
-  logo?: string
+  /**
+   * Sidebar title
+   */
+  title?: string
+  
+  /**
+   * Sidebar width in pixels
+   */
+  width?: number
+  
+  /**
+   * Whether sidebar is initially open
+   */
+  modelValue?: boolean
 }
 
-export interface BasicMainProps {
-  spec?: any
-}
-
-export interface BasicAdminProps {
-  logo?: string
-}
-
-export interface BasicAuthProps {
-  user?: any
-}
-
+/**
+ * BasicNavStages component props
+ */
 export interface BasicNavStagesProps {
-  spec?: any
+  /**
+   * Current stage number
+   */
+  modelValue?: number
+  
+  /**
+   * Array of available stages
+   */
+  stages?: Array<{
+    id: number
+    name: string
+    label?: string
+    [key: string]: any
+  }>
+  
+  /**
+   * Stage configuration
+   */
+  config?: {
+    allowSkip?: boolean
+    showLabels?: boolean
+    [key: string]: any
+  }
 }
 
-export interface BasicLedProps {
-  status?: 'on' | 'off' | 'warning' | 'error'
-  spec?: any
-  param?: any
+/**
+ * BasicAuth component props
+ */
+export interface BasicAuthProps {
+  /**
+   * Redirect path after successful login
+   */
+  redirectPath?: string
+  
+  /**
+   * Show remember me checkbox
+   */
+  rememberMe?: boolean
 }
 
-export interface BasicFootProps {
-  links?: FooterLink[]
-  version?: string
-  copyright?: string
+/**
+ * BasicAdmin component props
+ */
+export interface BasicAdminProps {
+  /**
+   * Admin panel title
+   */
+  title?: string
 }
 
+/**
+ * BasicMain component props
+ */
+export interface BasicMainProps {
+  /**
+   * Main content layout type
+   */
+  layout?: 'default' | 'full' | 'compact'
+}
+
+/**
+ * BasicFieldPick component props
+ */
 export interface BasicFieldPickProps {
-  field?: any
-  param?: any
-  modelValue?: string | string[]
+  /**
+   * Field label
+   */
   label?: string
-  disabled?: boolean
-  multiple?: boolean
+  
+  /**
+   * Available options
+   */
+  options?: Array<any>
+  
+  /**
+   * Selected value
+   */
+  modelValue?: any
+}
+
+/**
+ * BasicFoot component props
+ */
+export interface BasicFootProps {
+  /**
+   * Footer content
+   */
+  content?: string
+  
+  /**
+   * Show copyright
+   */
+  showCopyright?: boolean
+}
+
+/**
+ * BasicLed component props
+ */
+export interface BasicLedProps {
+  /**
+   * LED status
+   */
+  status?: 'on' | 'off' | 'blink'
+  
+  /**
+   * LED color
+   */
+  color?: string
 }

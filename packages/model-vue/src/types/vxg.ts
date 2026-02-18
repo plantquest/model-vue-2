@@ -3,7 +3,7 @@
  * Core plugin configuration and state types
  */
 
-import type { App } from 'vue'
+import { App, Plugin } from 'vue'
 
 /**
  * Vxg plugin configuration options
@@ -76,7 +76,7 @@ export interface VxgComponentState {
  * Vxg Plugin Class
  * Main plugin that gets installed with app.use()
  */
-export interface VxgPlugin {
+export interface VxgPlugin extends Plugin {
   /**
    * Vue plugin install method
    */
